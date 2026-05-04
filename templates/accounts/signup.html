@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up - K-DATA HUB{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block content %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 80px);
+        background: radial-gradient(circle at bottom left, #0f172a, #020617);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+    }
+    .auth-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        padding: 3.5rem;
+        border-radius: 28px;
+        width: 100%;
+        max-width: 550px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+    .auth-card h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #ffffff, #6366f1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+    .auth-card p {
+        color: #94a3b8;
+        margin-bottom: 2.5rem;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        text-align: left;
+    }
+    .form-field {
+        margin-bottom: 1.2rem;
+    }
+    .form-field.full-width {
+        grid-column: span 2;
+    }
+    .form-field label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-bottom: 0.5rem;
+    }
+    .form-field input {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        transition: all 0.3s ease;
+    }
+    .form-field input:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #6366f1;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+    .auth-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1.5rem;
+    }
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+    }
+    .auth-footer {
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+    .auth-footer a {
+        color: #a5b4fc;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+</style>
+
+<section class="auth-page">
+    <div class="auth-card">
+        <h1>Join K-DATA HUB</h1>
+        <p>Start your premium data experience today.</p>
+        <form method="post" enctype="multipart/form-data" class="auth-form">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="error-summary" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 12px; color: #fca5a5; margin-bottom: 2rem; text-align: left; font-size: 0.85rem;">
+                    <p style="font-weight: 700; margin-bottom: 0.5rem;">Please correct the following errors:</p>
+                    <ul style="padding-left: 1.2rem; margin: 0;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="form-grid">
+                <div class="form-field">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-field">
+                    <label for="id_email">Email Address</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-field">
+                    <label for="id_phone_number">Phone Number</label>
+                    {{ form.phone_number }}
+                </div>
+                <div class="form-field">
+                    <label for="id_profile_picture">Profile Picture</label>
+                    {{ form.profile_picture }}
+                </div>
+                <div class="form-field">
+                    <label for="id_password1">Password</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="form-field">
+                    <label for="id_password2">Confirm Password</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+            <button type="submit" class="auth-btn">Create Secure Account</button>
+        </form>
+        <div class="auth-footer">
+            Already a member? <a href="{% url 'accounts:login' %}">Sign In</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

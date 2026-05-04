@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - K-DATA HUB{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        {% if user.is_authenticated %}
+            <div class="welcome-profile">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="profile-pic-large">
+                {% else %}
+                    <div class="profile-placeholder">{{ user.username|first|upper }}</div>
+                {% endif %}
+                <div class="welcome-text">
+                    <p class="hero-welcome">Hello, {{ user.username }}!</p>
+                    <h1>Welcome back to K-DATA HUB</h1>
+                    <p>Your personal data dashboard and order history are ready.</p>
+                </div>
+            </div>
+        {% else %}
+            <h1>Welcome to KDATA hub, WHERE YOU GET AFFORDABLE DATA DEALS</h1>
+            <p>Buy MTN, Airtel and Telecel plans instantly with K-DATA HUB. The best prices, fast delivery, and support on WhatsApp.</p>
+        {% endif %}
+        <div class="hero-cta">
+            <a href="https://wa.me/233594715103" class="btn btn-primary">Order via WhatsApp</a>
+            <a href="{% url 'orders:create_order' %}" class="btn btn-secondary">Place Order</a>
+            {% if user.is_manager %}
+                <a href="{% url 'orders:manager_dashboard' %}" class="btn btn-primary" style="background: var(--secondary-gradient);">Manage Orders</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-info">
+        <div class="feature-card">
+            <h3>Fast Delivery</h3>
+            <p>Instant airtime and data delivery to your number.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Secure Payment</h3>
+            <p>Pay quickly with Paystack and verify your transaction instantly.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Trusted Service</h3>
+            <p>Leading data vendor with a growing customer base.</p>
+        </div>
+    </div>
+</section>
+
+<section class="pricelist-section">
+    <div class="section-header">
+        <h2>Price List</h2>
+        <p>Choose the best data bundle for your budget. All prices are in GHC and available through K-DATA HUB.</p>
+    </div>
+
+    <div class="pricelist-grid">
+        <div class="carrier-card carrier-mtn">
+            <div class="carrier-title">
+                <span>MTN</span>
+            </div>
+            <div class="price-boxes">
+                <div class="price-box"><div class="box-data">1 GB</div><div class="box-price">GHC 6</div></div>
+                <div class="price-box"><div class="box-data">2 GB</div><div class="box-price">GHC 12</div></div>
+                <div class="price-box"><div class="box-data">3 GB</div><div class="box-price">GHC 18</div></div>
+                <div class="price-box"><div class="box-data">4 GB</div><div class="box-price">GHC 23</div></div>
+                <div class="price-box"><div class="box-data">5 GB</div><div class="box-price">GHC 28</div></div>
+                <div class="price-box"><div class="box-data">6 GB</div><div class="box-price">GHC 33</div></div>
+                <div class="price-box"><div class="box-data">8 GB</div><div class="box-price">GHC 43</div></div>
+                <div class="price-box"><div class="box-data">10 GB</div><div class="box-price">GHC 50</div></div>
+                <div class="price-box"><div class="box-data">12 GB</div><div class="box-price">GHC 60</div></div>
+                <div class="price-box"><div class="box-data">15 GB</div><div class="box-price">GHC 75</div></div>
+                <div class="price-box"><div class="box-data">20 GB</div><div class="box-price">GHC 96</div></div>
+                <div class="price-box"><div class="box-data">25 GB</div><div class="box-price">GHC 116</div></div>
+                <div class="price-box"><div class="box-data">30 GB</div><div class="box-price">GHC 137</div></div>
+                <div class="price-box"><div class="box-data">40 GB</div><div class="box-price">GHC 180</div></div>
+                <div class="price-box"><div class="box-data">50 GB</div><div class="box-price">GHC 215</div></div>
+                <div class="price-box"><div class="box-data">100 GB</div><div class="box-price">GHC 420</div></div>
+            </div>
+        </div>
+
+        <div class="carrier-card carrier-airtel">
+            <div class="carrier-title">
+                <span>Airtel / AT</span>
+            </div>
+            <div class="price-boxes">
+                <div class="price-box"><div class="box-data">2 GB</div><div class="box-price">GHC 10</div></div>
+                <div class="price-box"><div class="box-data">3 GB</div><div class="box-price">GHC 15</div></div>
+                <div class="price-box"><div class="box-data">4 GB</div><div class="box-price">GHC 18</div></div>
+                <div class="price-box"><div class="box-data">5 GB</div><div class="box-price">GHC 23</div></div>
+                <div class="price-box"><div class="box-data">6 GB</div><div class="box-price">GHC 28</div></div>
+                <div class="price-box"><div class="box-data">8 GB</div><div class="box-price">GHC 35</div></div>
+                <div class="price-box"><div class="box-data">10 GB</div><div class="box-price">GHC 45</div></div>
+                <div class="price-box"><div class="box-data">12 GB</div><div class="box-price">GHC 50</div></div>
+                <div class="price-box"><div class="box-data">15 GB</div><div class="box-price">GHC 65</div></div>
+                <div class="price-box"><div class="box-data">20 GB</div><div class="box-price">GHC 80</div></div>
+                <div class="price-box"><div class="box-data">30 GB</div><div class="box-price">GHC 95</div></div>
+                <div class="price-box"><div class="box-data">40 GB</div><div class="box-price">GHC 105</div></div>
+                <div class="price-box"><div class="box-data">50 GB</div><div class="box-price">GHC 120</div></div>
+                <div class="price-box"><div class="box-data">80 GB</div><div class="box-price">GHC 165</div></div>
+                <div class="price-box"><div class="box-data">100 GB</div><div class="box-price">GHC 195</div></div>
+                <div class="price-box"><div class="box-data">200 GB</div><div class="box-price">GHC 350</div></div>
+            </div>
+        </div>
+
+        <div class="carrier-card carrier-telecel">
+            <div class="carrier-title">
+                <span>Telecel</span>
+            </div>
+            <div class="price-boxes">
+                <div class="price-box"><div class="box-data">5 GB</div><div class="box-price">GHC 26</div></div>
+                <div class="price-box"><div class="box-data">10 GB</div><div class="box-price">GHC 47</div></div>
+                <div class="price-box"><div class="box-data">15 GB</div><div class="box-price">GHC 70</div></div>
+                <div class="price-box"><div class="box-data">20 GB</div><div class="box-price">GHC 90</div></div>
+                <div class="price-box"><div class="box-data">30 GB</div><div class="box-price">GHC 135</div></div>
+                <div class="price-box"><div class="box-data">40 GB</div><div class="box-price">GHC 180</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="price-notes">
+        <p>Buy all your affordable data packages from K-DATA HUB today. Prices are subject to availability and may change; contact us on WhatsApp for instant confirmation.</p>
+    </div>
+</section>
+{% endblock %}

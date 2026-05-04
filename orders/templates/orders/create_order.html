@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Place Order - K-DATA HUB{% endblock %}
+
+{% block content %}
+<style>
+    .checkout-page {
+        padding: 4rem 2rem;
+        background: #f8fafc;
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .checkout-card {
+        max-width: 650px;
+        width: 100%;
+        background: white;
+        border-radius: 28px;
+        padding: 3.5rem;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid #edf2f7;
+    }
+
+    .checkout-card h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.8rem;
+        text-align: center;
+        letter-spacing: -1px;
+    }
+
+    .checkout-card p.subtitle {
+        text-align: center;
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+        font-size: 1.05rem;
+    }
+
+    .order-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.8rem;
+    }
+
+    .form-group-premium {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .form-group-premium label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-control-premium {
+        padding: 1rem 1.2rem;
+        border: 2px solid #f1f5f9;
+        border-radius: 14px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        appearance: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    select.form-control-premium {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1.2rem center;
+        background-size: 1.2rem;
+    }
+
+    .form-control-premium:focus {
+        background: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .total-box-premium {
+        background: var(--secondary-gradient);
+        border-radius: 18px;
+        padding: 2rem;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 1rem 0;
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+    }
+
+    .total-label {
+        font-size: 1rem;
+        font-weight: 600;
+        opacity: 0.8;
+    }
+
+    .total-amount {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .btn-checkout {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+    }
+
+    .btn-checkout:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-cancel {
+        text-align: center;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    /* Carrier specific colors in select */
+    option.mtn { color: #d97706; }
+    option.airtel { color: #1d4ed8; }
+    option.telecel { color: #dc2626; }
+</style>
+
+<div class="checkout-page">
+    <div class="checkout-card">
+        <h1>Secure Checkout</h1>
+        <p class="subtitle">Complete your order and receive your data package instantly.</p>
+
+        <form method="POST" action="{% url 'orders:create_order' %}" class="order-form">
+            {% csrf_token %}
+
+            <div class="form-group-premium">
+                <label for="customer_name">Full Name</label>
+                <input type="text" id="customer_name" name="customer_name" required class="form-control-premium" value="{% if user.is_authenticated %}{{ user.username }}{% endif %}" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group-premium">
+                <label for="customer_email">Email Address</label>
+                <input type="email" id="customer_email" name="customer_email" required class="form-control-premium" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" placeholder="For payment receipt & tracking">
+            </div>
+
+            <div class="form-group-premium">
+                <label for="customer_phone">Phone Number</label>
+                <input type="tel" id="customer_phone" name="customer_phone" required class="form-control-premium" placeholder="e.g. 024xxxxxxx">
+            </div>
+
+            <div class="form-group-premium">
+                <label for="item_name">Select Data Package</label>
+                <select id="item_name" name="item_name" required class="form-control-premium">
+                    <option value="">-- Choose your plan --</option>
+                    
+                    {% if user.is_agent %}
+                        <!-- AGENT PRICES (10% OFF) -->
+                        <optgroup label="MTN GHANA (AGENT)">
+                            <option value="1GB MTN" class="mtn">1GB MTN - ₵5.00</option>
+                            <option value="2GB MTN" class="mtn">2GB MTN - ₵10.00</option>
+                            <option value="3GB MTN" class="mtn">3GB MTN - ₵15.00</option>
+                            <option value="4GB MTN" class="mtn">4GB MTN - ₵20.00</option>
+                            <option value="5GB MTN" class="mtn">5GB MTN - ₵25.00</option>
+                            <option value="6GB MTN" class="mtn">6GB MTN - ₵28.00</option>
+                            <option value="8GB MTN" class="mtn">8GB MTN - ₵35.00</option>
+                            <option value="10GB MTN" class="mtn">10GB MTN - ₵43.00</option>
+                            <option value="15GB MTN" class="mtn">15GB MTN - ₵62.00</option>
+                            <option value="20GB MTN" class="mtn">20GB MTN - ₵85.00</option>
+                            <option value="25GB MTN" class="mtn">25GB MTN - ₵105.00</option>
+                            <option value="30GB MTN" class="mtn">30GB MTN - ₵125.00</option>
+                            <option value="40GB MTN" class="mtn">40GB MTN - ₵165.00</option>
+                            <option value="50GB MTN" class="mtn">50GB MTN - ₵198.00</option>
+                            <option value="100GB MTN" class="mtn">100GB MTN - ₵370.00</option>
+                        </optgroup>
+
+                        <optgroup label="AIRTEL / AT (AGENT)">
+                            <option value="2GB Airtel" class="airtel">2GB Airtel - ₵9.00</option>
+                            <option value="3GB Airtel" class="airtel">3GB Airtel - ₵13.50</option>
+                            <option value="4GB Airtel" class="airtel">4GB Airtel - ₵16.20</option>
+                            <option value="5GB Airtel" class="airtel">5GB Airtel - ₵20.70</option>
+                            <option value="6GB Airtel" class="airtel">6GB Airtel - ₵25.20</option>
+                            <option value="8GB Airtel" class="airtel">8GB Airtel - ₵31.50</option>
+                            <option value="10GB Airtel" class="airtel">10GB Airtel - ₵40.50</option>
+                            <option value="12GB Airtel" class="airtel">12GB Airtel - ₵45.00</option>
+                            <option value="15GB Airtel" class="airtel">15GB Airtel - ₵58.50</option>
+                            <option value="20GB Airtel" class="airtel">20GB Airtel - ₵72.00</option>
+                            <option value="30GB Airtel" class="airtel">30GB Airtel - ₵85.50</option>
+                            <option value="40GB Airtel" class="airtel">40GB Airtel - ₵94.50</option>
+                            <option value="50GB Airtel" class="airtel">50GB Airtel - ₵108.00</option>
+                            <option value="80GB Airtel" class="airtel">80GB Airtel - ₵148.50</option>
+                            <option value="100GB Airtel" class="airtel">100GB Airtel - ₵175.50</option>
+                            <option value="200GB Airtel" class="airtel">200GB Airtel - ₵315.00</option>
+                        </optgroup>
+
+                        <optgroup label="TELECEL GHANA (AGENT)">
+                            <option value="5GB Telecel" class="telecel">5GB Telecel - ₵23.40</option>
+                            <option value="10GB Telecel" class="telecel">10GB Telecel - ₵42.30</option>
+                            <option value="15GB Telecel" class="telecel">15GB Telecel - ₵63.00</option>
+                            <option value="20GB Telecel" class="telecel">20GB Telecel - ₵81.00</option>
+                            <option value="30GB Telecel" class="telecel">30GB Telecel - ₵121.50</option>
+                            <option value="40GB Telecel" class="telecel">40GB Telecel - ₵162.00</option>
+                        </optgroup>
+                    {% else %}
+                        <!-- NORMAL PRICES -->
+                        <optgroup label="MTN GHANA">
+                            <option value="1GB MTN" class="mtn">1GB MTN - ₵6.00</option>
+                            <option value="2GB MTN" class="mtn">2GB MTN - ₵12.00</option>
+                            <option value="3GB MTN" class="mtn">3GB MTN - ₵18.00</option>
+                            <option value="4GB MTN" class="mtn">4GB MTN - ₵23.00</option>
+                            <option value="5GB MTN" class="mtn">5GB MTN - ₵28.00</option>
+                            <option value="6GB MTN" class="mtn">6GB MTN - ₵33.00</option>
+                            <option value="8GB MTN" class="mtn">8GB MTN - ₵43.00</option>
+                            <option value="10GB MTN" class="mtn">10GB MTN - ₵50.00</option>
+                            <option value="12GB MTN" class="mtn">12GB MTN - ₵60.00</option>
+                            <option value="15GB MTN" class="mtn">15GB MTN - ₵75.00</option>
+                            <option value="20GB MTN" class="mtn">20GB MTN - ₵96.00</option>
+                            <option value="25GB MTN" class="mtn">25GB MTN - ₵116.00</option>
+                            <option value="30GB MTN" class="mtn">30GB MTN - ₵137.00</option>
+                            <option value="40GB MTN" class="mtn">40GB MTN - ₵180.00</option>
+                            <option value="50GB MTN" class="mtn">50GB MTN - ₵215.00</option>
+                            <option value="100GB MTN" class="mtn">100GB MTN - ₵420.00</option>
+                        </optgroup>
+
+                        <optgroup label="AIRTEL / AT">
+                            <option value="2GB Airtel" class="airtel">2GB Airtel - ₵10.00</option>
+                            <option value="3GB Airtel" class="airtel">3GB Airtel - ₵15.00</option>
+                            <option value="4GB Airtel" class="airtel">4GB Airtel - ₵18.00</option>
+                            <option value="5GB Airtel" class="airtel">5GB Airtel - ₵23.00</option>
+                            <option value="6GB Airtel" class="airtel">6GB Airtel - ₵28.00</option>
+                            <option value="8GB Airtel" class="airtel">8GB Airtel - ₵35.00</option>
+                            <option value="10GB Airtel" class="airtel">10GB Airtel - ₵45.00</option>
+                            <option value="12GB Airtel" class="airtel">12GB Airtel - ₵50.00</option>
+                            <option value="15GB Airtel" class="airtel">15GB Airtel - ₵65.00</option>
+                            <option value="20GB Airtel" class="airtel">20GB Airtel - ₵80.00</option>
+                            <option value="30GB Airtel" class="airtel">30GB Airtel - ₵95.00</option>
+                            <option value="40GB Airtel" class="airtel">40GB Airtel - ₵105.00</option>
+                            <option value="50GB Airtel" class="airtel">50GB Airtel - ₵120.00</option>
+                            <option value="80GB Airtel" class="airtel">80GB Airtel - ₵165.00</option>
+                            <option value="100GB Airtel" class="airtel">100GB Airtel - ₵195.00</option>
+                            <option value="200GB Airtel" class="airtel">200GB Airtel - ₵350.00</option>
+                        </optgroup>
+
+                        <optgroup label="TELECEL GHANA">
+                            <option value="5GB Telecel" class="telecel">5GB Telecel - ₵26.00</option>
+                            <option value="10GB Telecel" class="telecel">10GB Telecel - ₵47.00</option>
+                            <option value="15GB Telecel" class="telecel">15GB Telecel - ₵70.00</option>
+                            <option value="20GB Telecel" class="telecel">20GB Telecel - ₵90.00</option>
+                            <option value="30GB Telecel" class="telecel">30GB Telecel - ₵135.00</option>
+                            <option value="40GB Telecel" class="telecel">40GB Telecel - ₵180.00</option>
+                        </optgroup>
+                    {% endif %}
+                </select>
+            </div>
+
+            <div class="form-group-premium" style="display: none;">
+                <label for="unit_price">Price (₵)</label>
+                <input type="number" id="unit_price" name="unit_price" step="0.01" readonly class="form-control-premium">
+            </div>
+
+            <div class="form-group-premium">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="1" value="1" required class="form-control-premium">
+            </div>
+
+            <div class="total-box-premium">
+                <span class="total-label">Total Payable</span>
+                <span class="total-amount">₵<span id="total">0.00</span></span>
+            </div>
+
+            <button type="submit" class="btn-checkout">Proceed to Secure Payment</button>
+            <a href="{% url 'home' %}" class="btn-cancel">Return to Home</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    const quantityInput = document.getElementById('quantity');
+    const unitPriceInput = document.getElementById('unit_price');
+    const totalDisplay = document.getElementById('total');
+    const itemSelect = document.getElementById('item_name');
+
+    function updateTotal() {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const unitPrice = parseFloat(unitPriceInput.value) || 0;
+        const total = (quantity * unitPrice).toFixed(2);
+        totalDisplay.textContent = total;
+    }
+
+    itemSelect.addEventListener('change', function() {
+        const selectedText = this.options[this.selectedIndex].text;
+        const priceMatch = selectedText.match(/₵([\d.]+)/);
+        if (priceMatch) {
+            unitPriceInput.value = priceMatch[1];
+            updateTotal();
+        }
+    });
+
+    quantityInput.addEventListener('input', updateTotal);
+    updateTotal();
+</script>
+{% endblock %}

@@ -1,0 +1,670 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - K-DATA HUB{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <section class="dashboard-header">
+        <div class="header-content">
+            <h1>Manager Dashboard</h1>
+            <p>Monitor and manage your orders, customers, and analytics</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openFilters()">🔍 Filters</button>
+            <button class="btn btn-primary" onclick="downloadReport()">📊 Export Report</button>
+        </div>
+    </section>
+
+    <!-- Stats Overview -->
+    <section class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e3f2fd; color: #2196f3;">📊</div>
+            <div class="stat-content">
+                <p class="stat-label">Total Orders</p>
+                <h3 class="stat-value">{{ total_orders|default:"1,234" }}</h3>
+                <span class="stat-change positive">+12% from last month</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f3e5f5; color: #9c27b0;">💰</div>
+            <div class="stat-content">
+                <p class="stat-label">Revenue</p>
+                <h3 class="stat-value">₦{{ total_revenue|default:"2,500,000" }}</h3>
+                <span class="stat-change positive">+8% from last month</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e8f5e9; color: #4caf50;">👥</div>
+            <div class="stat-content">
+                <p class="stat-label">Active Customers</p>
+                <h3 class="stat-value">{{ active_customers|default:"456" }}</h3>
+                <span class="stat-change positive">+5% from last month</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #fff3e0; color: #ff9800;">⏱️</div>
+            <div class="stat-content">
+                <p class="stat-label">Pending Orders</p>
+                <h3 class="stat-value">{{ pending_orders|default:"23" }}</h3>
+                <span class="stat-change">Needs attention</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-content">
+        <!-- Left Column -->
+        <div class="dashboard-left">
+            <!-- Recent Orders -->
+            <section class="card">
+                <div class="section-header">
+                    <h2>Recent Orders</h2>
+                    <a href="#" class="link-secondary">View All →</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-001234</td>
+                                <td>John Doe</td>
+                                <td>₦15,500</td>
+                                <td><span class="badge badge-success">Delivered</span></td>
+                                <td>Apr 25, 2024</td>
+                                <td>
+                                    <button class="btn-action" title="View">👁️</button>
+                                    <button class="btn-action" title="Edit">✏️</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-001233</td>
+                                <td>Jane Smith</td>
+                                <td>₦8,750</td>
+                                <td><span class="badge badge-warning">Processing</span></td>
+                                <td>Apr 26, 2024</td>
+                                <td>
+                                    <button class="btn-action" title="View">👁️</button>
+                                    <button class="btn-action" title="Edit">✏️</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-001232</td>
+                                <td>Mike Johnson</td>
+                                <td>₦22,000</td>
+                                <td><span class="badge badge-info">Shipping</span></td>
+                                <td>Apr 24, 2024</td>
+                                <td>
+                                    <button class="btn-action" title="View">👁️</button>
+                                    <button class="btn-action" title="Edit">✏️</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#ORD-001231</td>
+                                <td>Sarah Williams</td>
+                                <td>₦6,300</td>
+                                <td><span class="badge badge-danger">Cancelled</span></td>
+                                <td>Apr 23, 2024</td>
+                                <td>
+                                    <button class="btn-action" title="View">👁️</button>
+                                    <button class="btn-action" title="Edit">✏️</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Order Status Breakdown -->
+            <section class="card">
+                <h2>Order Status Breakdown</h2>
+                <div class="status-breakdown">
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 40%; background: #4caf50;"></div>
+                        </div>
+                        <span class="status-label">Completed <strong>40%</strong></span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 35%; background: #2196f3;"></div>
+                        </div>
+                        <span class="status-label">Processing <strong>35%</strong></span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 15%; background: #ff9800;"></div>
+                        </div>
+                        <span class="status-label">Shipping <strong>15%</strong></span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-bar">
+                            <div class="status-fill" style="width: 10%; background: #f44336;"></div>
+                        </div>
+                        <span class="status-label">Cancelled <strong>10%</strong></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="dashboard-right">
+            <!-- Quick Actions -->
+            <section class="card">
+                <h2>Quick Actions</h2>
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="newOrder()">
+                        <span class="action-icon">➕</span>
+                        <span class="action-text">New Order</span>
+                    </button>
+                    <button class="action-btn" onclick="newCustomer()">
+                        <span class="action-icon">👤</span>
+                        <span class="action-text">Add Customer</span>
+                    </button>
+                    <button class="action-btn" onclick="manageInventory()">
+                        <span class="action-icon">📦</span>
+                        <span class="action-text">Inventory</span>
+                    </button>
+                    <button class="action-btn" onclick="viewReports()">
+                        <span class="action-icon">📈</span>
+                        <span class="action-text">Reports</span>
+                    </button>
+                    <button class="action-btn" onclick="manageUsers()">
+                        <span class="action-icon">👨‍💼</span>
+                        <span class="action-text">Users</span>
+                    </button>
+                    <button class="action-btn" onclick="settings()">
+                        <span class="action-icon">⚙️</span>
+                        <span class="action-text">Settings</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Top Customers -->
+            <section class="card">
+                <div class="section-header">
+                    <h2>Top Customers</h2>
+                    <a href="#" class="link-secondary">View All →</a>
+                </div>
+                <div class="customer-list">
+                    <div class="customer-item">
+                        <div class="customer-avatar">JD</div>
+                        <div class="customer-info">
+                            <p class="customer-name">John Doe</p>
+                            <p class="customer-purchases">12 orders</p>
+                        </div>
+                        <p class="customer-value">₦45,600</p>
+                    </div>
+                    <div class="customer-item">
+                        <div class="customer-avatar">JS</div>
+                        <div class="customer-info">
+                            <p class="customer-name">Jane Smith</p>
+                            <p class="customer-purchases">8 orders</p>
+                        </div>
+                        <p class="customer-value">₦28,900</p>
+                    </div>
+                    <div class="customer-item">
+                        <div class="customer-avatar">MJ</div>
+                        <div class="customer-info">
+                            <p class="customer-name">Mike Johnson</p>
+                            <p class="customer-purchases">15 orders</p>
+                        </div>
+                        <p class="customer-value">₦62,300</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications -->
+            <section class="card">
+                <h2>Notifications</h2>
+                <div class="notifications-list">
+                    <div class="notification-item">
+                        <span class="notification-icon">⚠️</span>
+                        <p><strong>Low Stock Alert:</strong> Product SKU-001 running low</p>
+                        <p class="notification-time">2 hours ago</p>
+                    </div>
+                    <div class="notification-item">
+                        <span class="notification-icon">✅</span>
+                        <p><strong>Order Shipped:</strong> Order #ORD-001234 has been shipped</p>
+                        <p class="notification-time">4 hours ago</p>
+                    </div>
+                    <div class="notification-item">
+                        <span class="notification-icon">💬</span>
+                        <p><strong>New Review:</strong> Customer left a 5-star review</p>
+                        <p class="notification-time">1 day ago</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 15px;
+        max-width: 1400px;
+        margin: 0 auto 2rem;
+    }
+
+    .header-content h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+    }
+
+    .header-content p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 0 2rem;
+        margin-bottom: 2rem;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        gap: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 70px;
+        height: 70px;
+        border-radius: 12px;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .stat-value {
+        margin: 0.5rem 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .stat-change {
+        display: inline-block;
+        font-size: 0.85rem;
+        color: #999;
+    }
+
+    .stat-change.positive {
+        color: #4caf50;
+    }
+
+    .dashboard-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        padding: 0 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-header h2 {
+        margin: 0;
+    }
+
+    .link-secondary {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+    }
+
+    .link-secondary:hover {
+        color: #764ba2;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .dashboard-table th {
+        background: #f5f5f5;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #eee;
+    }
+
+    .dashboard-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: #f9f9f9;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .badge-warning {
+        background: #fff3e0;
+        color: #e65100;
+    }
+
+    .badge-info {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .badge-danger {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .btn-action {
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.2);
+    }
+
+    .status-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .status-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .status-bar {
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .status-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .action-btn {
+        background: #f5f5f5;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 1.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    .action-btn:hover {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .action-icon {
+        font-size: 1.5rem;
+    }
+
+    .action-text {
+        font-size: 0.9rem;
+    }
+
+    .customer-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .customer-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+    }
+
+    .customer-avatar {
+        width: 40px;
+        height: 40px;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .customer-info {
+        flex: 1;
+    }
+
+    .customer-name {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .customer-purchases {
+        margin: 0;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .customer-value {
+        margin: 0;
+        font-weight: 600;
+        color: #667eea;
+    }
+
+    .notifications-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .notification-item {
+        padding: 1rem;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+    }
+
+    .notification-icon {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+
+    .notification-item p {
+        margin: 0.5rem 0;
+        line-height: 1.5;
+    }
+
+    .notification-time {
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-content {
+            grid-template-columns: 1fr;
+        }
+
+        .header-actions {
+            flex-direction: column;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            padding: 0 1rem;
+        }
+
+        .dashboard-content {
+            padding: 0 1rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .dashboard-table {
+            font-size: 0.9rem;
+        }
+
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 0.75rem;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+    // Dashboard Functions
+    function openFilters() {
+        alert('Filters dialog would open here to filter orders by date, status, customer, etc.');
+    }
+
+    function downloadReport() {
+        alert('Report export would trigger a download of dashboard data as CSV/PDF');
+    }
+
+    function newOrder() {
+        alert('New order creation form would open');
+    }
+
+    function newCustomer() {
+        alert('New customer registration form would open');
+    }
+
+    function manageInventory() {
+        alert('Inventory management page would open');
+    }
+
+    function viewReports() {
+        alert('Detailed reports page would open');
+    }
+
+    function manageUsers() {
+        alert('User management page would open');
+    }
+
+    function settings() {
+        alert('Settings/configuration page would open');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% block title %}Manager Dashboard - K-DATA HUB{% endblock %}
+
+{% block content %}
+<section class="manager-dashboard">
+    <header class="dashboard-hero">
+        <div>
+            <h1>Welcome back, {{ user.first_name|default:user.username }}</h1>
+            <p>Daily sales summary and order performance for {{ user.is_manager|yesno:"Managers,Customers" }}.</p>
+        </div>
+        <div class="dashboard-avatar">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }} profile">
+            {% else %}
+                <div class="avatar-placeholder">{{ user.username|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <article class="metric-card">
+            <h2>Orders today</h2>
+            <p>{{ total_orders_today }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Revenue today</h2>
+            <p>₵{{ total_revenue_today }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Pending today</h2>
+            <p>{{ pending_orders }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Completed today</h2>
+            <p>{{ completed_orders }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Week orders</h2>
+            <p>{{ week_orders }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Week revenue</h2>
+            <p>₵{{ week_revenue }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Month orders</h2>
+            <p>{{ month_orders }}</p>
+        </article>
+        <article class="metric-card">
+            <h2>Month revenue</h2>
+            <p>₵{{ month_revenue }}</p>
+        </article>
+    </div>
+
+    <div class="dashboard-panel">
+        <div class="panel-block chart-container">
+            <h3>Revenue (Last 7 Days)</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+        <div class="panel-block chart-container">
+            <h3>Order Status</h3>
+            <canvas id="statusChart"></canvas>
+        </div>
+        <div class="panel-block">
+            <h3>Top products</h3>
+            {% if top_products %}
+                <ul class="status-list">
+                    {% for product in top_products %}
+                        <li>{{ product.item_name }} — {{ product.total_quantity }} sold</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No paid orders found yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="recent-orders">
+        <h3>Recent orders</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Buyer</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                        <tr>
+                            <td>{{ order.order_id }}</td>
+                            <td>{{ order.buyer.username }}</td>
+                            <td>{{ order.get_status_display }}</td>
+                            <td>₵{{ order.total_amount }}</td>
+                            <td>{{ order.created_at|date:'M d, Y' }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5">No recent orders yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<style>
+.manager-dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+.dashboard-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+.dashboard-hero h1 {
+    margin: 0;
+    font-size: clamp(2rem, 2.5vw, 2.75rem);
+}
+.dashboard-avatar img,
+.dashboard-avatar .avatar-placeholder {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    color: #1f2937;
+}
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.metric-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, .05);
+}
+.metric-card h2 {
+    margin: 0 0 .75rem;
+    font-size: 1rem;
+    color: #4b5563;
+}
+.metric-card p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+}
+.dashboard-panel {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-bottom: 1.5rem;
+}
+.panel-block {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+.panel-block h3 {
+    margin-top: 0;
+}
+.status-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.status-list li {
+    margin: .5rem 0;
+}
+.recent-orders {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+.table-wrap {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+th, td {
+    padding: 1rem .75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+th {
+    font-size: .95rem;
+    color: #4b5563;
+}
+tr:hover td {
+    background: #f8fafc;
+}
+@media (max-width: 640px) {
+    .dashboard-hero {
+        text-align: center;
+    }
+    .dashboard-hero > div {
+        width: 100%;
+    }
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.chart-container canvas {
+    max-height: 250px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const revCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ last_7_days_labels|safe }},
+            datasets: [{
+                label: 'Revenue (₵)',
+                data: {{ last_7_days_revenue|safe }},
+                backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                borderRadius: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Paid', 'Processing', 'Completed', 'Cancelled'],
+            datasets: [{
+                data: [
+                    {{ status_distribution.pending }},
+                    {{ status_distribution.paid }},
+                    {{ status_distribution.processing }},
+                    {{ status_distribution.completed }},
+                    {{ status_distribution.cancelled }}
+                ],
+                backgroundColor: ['#f59e0b', '#3b82f6', '#8b5cf6', '#10b981', '#ef4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+        }
+    });
+</script>
+{% endblock %}
+

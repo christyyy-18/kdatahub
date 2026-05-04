@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}K-DATA HUB{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h2>K-DATA HUB</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-user-info">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="nav-avatar">
+                        {% else %}
+                            <div class="nav-avatar-placeholder">{{ user.username|first|upper }}</div>
+                        {% endif %}
+                        <span class="nav-username">{{ user.username }}</span>
+                    </li>
+                    <li><a href="{% url 'orders:create_order' %}" class="{% if '/orders/create/' in request.path %}active{% endif %}">Place Order</a></li>
+                    <li><a href="{% url 'orders:track_order' %}" class="{% if 'track' in request.path %}active{% endif %}">Track Order</a></li>
+                    <li><a href="{% url 'orders:my_orders' %}" class="{% if '/orders/my-orders/' in request.path %}active{% endif %}">My Orders</a></li>
+                    {% if user.is_manager %}
+                        <li><a href="{% url 'orders:manager_dashboard' %}" class="{% if 'manager-dashboard' in request.path %}active{% endif %}">Dashboard</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'accounts:profile' %}" class="{% if '/accounts/profile/' in request.path %}active{% endif %}">Profile</a></li>
+                    <li><a href="{% url 'accounts:logout' %}" class="logout-link">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'accounts:login' %}" class="{% if '/accounts/login/' in request.path %}active{% endif %}">Login</a></li>
+                    <li><a href="{% url 'accounts:signup' %}" class="{% if '/accounts/signup/' in request.path %}active{% endif %}">Sign Up</a></li>
+                {% endif %}
+                {% if not user.is_agent %}
+                    <li><a href="{% url 'accounts:become_agent' %}" class="{% if 'become-agent' in request.path %}active{% endif %}">Become Agent</a></li>
+                {% endif %}
+                    <li><a href="{% url 'support' %}" class="{% if '/support/' in request.path %}active{% endif %}">Support</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2026 K-DATA HUB. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="{% url 'support' %}">Support</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}?v=1.1"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

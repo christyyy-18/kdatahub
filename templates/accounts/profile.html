@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - K-DATA HUB{% endblock %}
+
+{% block content %}
+<style>
+    .profile-container {
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2.5rem;
+    }
+
+    .profile-sidebar {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+        height: fit-content;
+        text-align: center;
+        border: 1px solid #edf2f7;
+        position: sticky;
+        top: 100px;
+    }
+
+    .profile-avatar-large {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        padding: 4px;
+        background: var(--primary-gradient);
+    }
+
+    .profile-avatar-large img, .avatar-placeholder-large {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: #6366f1;
+    }
+
+    .profile-info h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-info p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .role-badge.manager {
+        background: rgba(99, 102, 241, 0.1);
+        color: #4f46e5;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .role-badge.buyer {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .role-badge.agent {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        margin-top: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    .stat-item span {
+        display: block;
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .stat-item label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-main {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid #edf2f7;
+    }
+
+    .profile-main h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: #1e293b;
+        position: relative;
+    }
+
+    .profile-main h2::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-gradient);
+        border-radius: 2px;
+        margin-top: 0.5rem;
+    }
+
+    .form-grid-premium {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .input-group-premium {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .input-group-premium label {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #475569;
+    }
+
+    .input-group-premium input {
+        padding: 0.9rem 1.2rem;
+        border: 2px solid #f1f5f9;
+        border-radius: 12px;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1rem;
+        color: #1e293b;
+        transition: all 0.2s ease;
+        background: #f8fafc;
+    }
+
+    .input-group-premium input:focus {
+        background: white;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    .save-profile-btn {
+        grid-column: span 2;
+        margin-top: 1.5rem;
+        padding: 1.1rem;
+        border-radius: 14px;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .save-profile-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px -10px rgba(79, 70, 229, 0.5);
+    }
+
+    .save-profile-btn:active {
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 1000px) {
+        .profile-container {
+            grid-template-columns: 1fr;
+        }
+        .profile-sidebar {
+            position: relative;
+            top: 0;
+        }
+        .form-grid-premium {
+            grid-template-columns: 1fr;
+        }
+        .save-profile-btn {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<div class="profile-container">
+    <!-- Sidebar Info -->
+    <aside class="profile-sidebar">
+        <div class="profile-avatar-large">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}">
+            {% else %}
+                <div class="avatar-placeholder-large">{{ user.username|slice:":1"|upper }}</div>
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.username }}</h1>
+            <p>{{ user.email }}</p>
+            <span class="role-badge {% if user.is_manager %}manager{% elif user.is_agent %}agent{% else %}buyer{% endif %}">
+                {% if user.is_manager %}★ Manager Account{% elif user.is_agent %}♦ Registered Agent{% else %}✓ Verified Buyer{% endif %}
+            </span>
+        </div>
+        <div class="profile-stats">
+            <div class="stat-item">
+                <span>{{ user.order_set.count }}</span>
+                <label>Total Orders</label>
+            </div>
+            <div class="stat-item">
+                <span>Active</span>
+                <label>Status</label>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Form -->
+    <main class="profile-main">
+        <h2>Account Settings</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="margin-bottom: 2rem; padding: 1rem; border-radius: 10px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="form-grid-premium">
+                <div class="input-group-premium">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="input-group-premium">
+                    <label for="id_email">Email Address</label>
+                    {{ form.email }}
+                </div>
+                <div class="input-group-premium">
+                    <label for="id_phone_number">Phone Number</label>
+                    {{ form.phone_number }}
+                </div>
+                <div class="input-group-premium">
+                    <label for="id_profile_picture">Profile Picture</label>
+                    {{ form.profile_picture }}
+                </div>
+                <button type="submit" class="save-profile-btn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

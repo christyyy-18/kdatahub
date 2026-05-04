@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Details #{{ order.order_id }} - K-DATA HUB{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="glass-card">
+        <div class="detail-header">
+            <div class="status-indicator status-{{ order.status|lower }}">
+                {{ order.get_status_display }}
+            </div>
+            <h1>Order Details</h1>
+            <p class="order-id">#{{ order.order_id }}</p>
+        </div>
+
+        <div class="detail-grid">
+            <div class="info-section">
+                <h3>Package Information</h3>
+                <div class="info-row">
+                    <span class="label">Item:</span>
+                    <span class="value">{{ order.item_name }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Quantity:</span>
+                    <span class="value">{{ order.quantity }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Unit Price:</span>
+                    <span class="value">₵{{ order.unit_price }}</span>
+                </div>
+                <div class="info-total">
+                    <span class="label">Total Paid:</span>
+                    <span class="value">₵{{ order.total_amount }}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>Customer Information</h3>
+                <div class="info-row">
+                    <span class="label">Name:</span>
+                    <span class="value">{{ order.customer_name|default:order.buyer.username|default:"Guest" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Email:</span>
+                    <span class="value">{{ order.customer_email|default:order.buyer.email|default:"N/A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Phone:</span>
+                    <span class="value">{{ order.customer_phone|default:"N/A" }}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3>Payment Details</h3>
+                <div class="info-row">
+                    <span class="label">Reference:</span>
+                    <span class="value">{{ order.paystack_reference|default:"Processing..." }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Date:</span>
+                    <span class="value">{{ order.created_at|date:"F j, Y, g:i a" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-footer">
+            <a href="{% url 'orders:my_orders' %}" class="btn-back">Back to Orders</a>
+            {% if order.status == 'pending' %}
+                <a href="{% url 'payments:initialize' order.order_id %}" class="btn-pay">Pay Now</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .order-detail-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 0 2rem;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 30px;
+        padding: 4rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .status-indicator {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-pending { background: #fff7ed; color: #9a3412; }
+    .status-paid { background: #f0fdf4; color: #166534; }
+    .status-processing { background: #eff6ff; color: #1e40af; }
+    .status-completed { background: #f0fdf4; color: #166534; }
+    .status-cancelled { background: #fef2f2; color: #991b1b; }
+
+    .detail-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .order-id {
+        color: #64748b;
+        font-family: monospace;
+        font-size: 1.1rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        gap: 3rem;
+    }
+
+    .info-section {
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 2rem;
+    }
+
+    .info-section:last-child {
+        border-bottom: none;
+    }
+
+    .info-section h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #94a3b8;
+        margin-bottom: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+    }
+
+    .info-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px dashed #e2e8f0;
+    }
+
+    .info-total .label {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .info-total .value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #4f46e5;
+    }
+
+    .label {
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .value {
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    .detail-footer {
+        margin-top: 4rem;
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    .btn-back, .btn-pay {
+        padding: 1.2rem 2.5rem;
+        border-radius: 15px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-back {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-back:hover {
+        background: #e2e8f0;
+    }
+
+    .btn-pay {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.5);
+    }
+</style>
+{% endblock %}

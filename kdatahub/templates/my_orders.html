@@ -1,0 +1,703 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - K-DATA HUB{% endblock %}
+
+{% block content %}
+<div class="my-orders-container">
+    <!-- Page Header -->
+    <section class="orders-header">
+        <div class="header-content">
+            <h1>My Orders</h1>
+            <p>Track and manage all your orders in one place</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openFilters()">🔍 Filter</button>
+            <button class="btn btn-primary" onclick="sortOrders()">↕️ Sort</button>
+        </div>
+    </section>
+
+    <!-- Orders Summary -->
+    <section class="orders-summary">
+        <div class="summary-card">
+            <p class="summary-label">Total Orders</p>
+            <h3 class="summary-value">{{ total_orders|default:"8" }}</h3>
+        </div>
+        <div class="summary-card">
+            <p class="summary-label">Pending</p>
+            <h3 class="summary-value" style="color: #ff9800;">{{ pending_count|default:"2" }}</h3>
+        </div>
+        <div class="summary-card">
+            <p class="summary-label">Delivered</p>
+            <h3 class="summary-value" style="color: #4caf50;">{{ delivered_count|default:"6" }}</h3>
+        </div>
+        <div class="summary-card">
+            <p class="summary-label">Total Spent</p>
+            <h3 class="summary-value" style="color: #2196f3;">₦{{ total_spent|default:"125,500" }}</h3>
+        </div>
+    </section>
+
+    <!-- Orders List -->
+    <section class="orders-list">
+        <!-- Empty State -->
+        {% if not orders %}
+        <div class="empty-state card">
+            <div class="empty-icon">📦</div>
+            <h2>No Orders Yet</h2>
+            <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+        </div>
+        {% endif %}
+
+        <!-- Order Items -->
+        <div class="order-items">
+            <!-- Order 1 -->
+            <div class="card order-card">
+                <div class="order-header">
+                    <div class="order-info">
+                        <h3>Order #ORD-001234</h3>
+                        <p class="order-date">Placed on April 25, 2024</p>
+                    </div>
+                    <div class="order-status">
+                        <span class="status-badge status-delivered">✓ Delivered</span>
+                    </div>
+                </div>
+
+                <div class="order-items-detail">
+                    <div class="order-item">
+                        <div class="item-image">📦</div>
+                        <div class="item-details">
+                            <p class="item-name">Premium Data Package</p>
+                            <p class="item-quantity">Qty: 1</p>
+                        </div>
+                        <p class="item-price">₦15,500</p>
+                    </div>
+                </div>
+
+                <div class="order-timeline">
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Order Placed</p>
+                            <p class="timeline-date">Apr 25, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Processing</p>
+                            <p class="timeline-date">Apr 25, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Shipped</p>
+                            <p class="timeline-date">Apr 26, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Delivered</p>
+                            <p class="timeline-date">Apr 28, 2024</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <strong>₦15,500</strong>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-action" title="View Details">👁️ View</button>
+                        <button class="btn-action" title="Track">📍 Track</button>
+                        <button class="btn-action" title="Support">💬 Support</button>
+                        <button class="btn-action" title="Reorder">🔄 Reorder</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order 2 -->
+            <div class="card order-card">
+                <div class="order-header">
+                    <div class="order-info">
+                        <h3>Order #ORD-001233</h3>
+                        <p class="order-date">Placed on April 26, 2024</p>
+                    </div>
+                    <div class="order-status">
+                        <span class="status-badge status-processing">⏳ Processing</span>
+                    </div>
+                </div>
+
+                <div class="order-items-detail">
+                    <div class="order-item">
+                        <div class="item-image">📊</div>
+                        <div class="item-details">
+                            <p class="item-name">Analytics Suite</p>
+                            <p class="item-quantity">Qty: 2</p>
+                        </div>
+                        <p class="item-price">₦8,750</p>
+                    </div>
+                </div>
+
+                <div class="order-timeline">
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Order Placed</p>
+                            <p class="timeline-date">Apr 26, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Processing</p>
+                            <p class="timeline-date">Apr 26, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Shipping</p>
+                            <p class="timeline-date">Expected Apr 28</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Delivery</p>
+                            <p class="timeline-date">Expected May 1</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <strong>₦8,750</strong>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-action" title="View Details">👁️ View</button>
+                        <button class="btn-action" title="Track">📍 Track</button>
+                        <button class="btn-action" title="Support">💬 Support</button>
+                        <button class="btn-action" title="Cancel" onclick="cancelOrder('ORD-001233')">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order 3 -->
+            <div class="card order-card">
+                <div class="order-header">
+                    <div class="order-info">
+                        <h3>Order #ORD-001232</h3>
+                        <p class="order-date">Placed on April 24, 2024</p>
+                    </div>
+                    <div class="order-status">
+                        <span class="status-badge status-shipping">📦 Shipping</span>
+                    </div>
+                </div>
+
+                <div class="order-items-detail">
+                    <div class="order-item">
+                        <div class="item-image">🔐</div>
+                        <div class="item-details">
+                            <p class="item-name">Enterprise Security Package</p>
+                            <p class="item-quantity">Qty: 1</p>
+                        </div>
+                        <p class="item-price">₦22,000</p>
+                    </div>
+                </div>
+
+                <div class="order-timeline">
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Order Placed</p>
+                            <p class="timeline-date">Apr 24, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Processing</p>
+                            <p class="timeline-date">Apr 25, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Shipped</p>
+                            <p class="timeline-date">Apr 27, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Delivery</p>
+                            <p class="timeline-date">Expected Apr 29</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span>Total:</span>
+                        <strong>₦22,000</strong>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-action" title="View Details">👁️ View</button>
+                        <button class="btn-action" title="Track">📍 Track</button>
+                        <button class="btn-action" title="Support">💬 Support</button>
+                        <button class="btn-action" title="Reorder">🔄 Reorder</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order 4 - Cancelled -->
+            <div class="card order-card">
+                <div class="order-header">
+                    <div class="order-info">
+                        <h3>Order #ORD-001231</h3>
+                        <p class="order-date">Placed on April 23, 2024</p>
+                    </div>
+                    <div class="order-status">
+                        <span class="status-badge status-cancelled">✕ Cancelled</span>
+                    </div>
+                </div>
+
+                <div class="order-items-detail">
+                    <div class="order-item">
+                        <div class="item-image">📱</div>
+                        <div class="item-details">
+                            <p class="item-name">Mobile App License</p>
+                            <p class="item-quantity">Qty: 1</p>
+                        </div>
+                        <p class="item-price">₦6,300</p>
+                    </div>
+                </div>
+
+                <div class="order-timeline">
+                    <div class="timeline-item completed">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Order Placed</p>
+                            <p class="timeline-date">Apr 23, 2024</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-dot"></span>
+                        <div>
+                            <p class="timeline-label">Cancelled</p>
+                            <p class="timeline-date">Apr 23, 2024 - Refunded</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span>Total (Refunded):</span>
+                        <strong>₦0.00</strong>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn-action" title="View Details">👁️ View</button>
+                        <button class="btn-action" title="Reorder">🔄 Reorder</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pagination -->
+    <section class="pagination-section">
+        <div class="pagination">
+            <button class="page-btn disabled">← Previous</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">Next →</button>
+        </div>
+    </section>
+</div>
+
+<style>
+    .my-orders-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .orders-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-content h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+    }
+
+    .header-content p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .orders-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .summary-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        text-align: center;
+    }
+
+    .summary-label {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .summary-value {
+        margin: 0.5rem 0 0 0;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+        margin-top: 1rem;
+    }
+
+    .order-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .order-card {
+        transition: all 0.3s ease;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-info h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+    }
+
+    .order-date {
+        margin: 0;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .order-status {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-delivered {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .status-processing {
+        background: #fff3e0;
+        color: #e65100;
+    }
+
+    .status-shipping {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    .status-cancelled {
+        background: #ffebee;
+        color: #c62828;
+    }
+
+    .order-items-detail {
+        padding: 1.5rem 0;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-item {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .item-image {
+        font-size: 2rem;
+        width: 60px;
+        height: 60px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .item-details {
+        flex: 1;
+    }
+
+    .item-name {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .item-quantity {
+        margin: 0.25rem 0 0 0;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+    .item-price {
+        margin: 0;
+        font-weight: 600;
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+
+    .order-timeline {
+        padding: 1.5rem 0;
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+    }
+
+    .timeline-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .timeline-dot {
+        width: 12px;
+        height: 12px;
+        background: #ddd;
+        border-radius: 50%;
+        margin-top: 3px;
+        flex-shrink: 0;
+        transition: background 0.3s ease;
+    }
+
+    .timeline-item.completed .timeline-dot {
+        background: #4caf50;
+    }
+
+    .timeline-label {
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .timeline-date {
+        margin: 0.25rem 0 0 0;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 1.5rem;
+    }
+
+    .order-total {
+        font-weight: 600;
+    }
+
+    .order-total span {
+        color: #666;
+        margin-right: 0.5rem;
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        background: #f5f5f5;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-action:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .pagination-section {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .page-btn {
+        padding: 0.6rem 1rem;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .page-btn:hover:not(.disabled) {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    .page-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .page-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+        .my-orders-container {
+            padding: 1rem;
+        }
+
+        .orders-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .orders-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .order-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-footer {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .order-actions {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .order-timeline {
+            padding: 1rem 0;
+            gap: 0.25rem;
+        }
+
+        .timeline-item {
+            min-width: 100px;
+        }
+
+        .timeline-label {
+            font-size: 0.8rem;
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<script>
+    // Filter Orders
+    function openFilters() {
+        alert('Filter dialog would open to filter by status, date range, amount, etc.');
+    }
+
+    // Sort Orders
+    function sortOrders() {
+        alert('Sort options would appear: By Date, Amount, Status, etc.');
+    }
+
+    // Cancel Order
+    function cancelOrder(orderId) {
+        if (confirm(`Are you sure you want to cancel order ${orderId}?`)) {
+            alert(`Order ${orderId} has been cancelled. A refund will be processed within 5-7 business days.`);
+        }
+    }
+
+    // Reorder (already in HTML)
+    // Support contact (already in HTML)
+    // Track order (already in HTML)
+</script>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Become an Agent - K-DATA HUB{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block content %}
+<style>
+    .auth-page {
+        min-height: calc(100vh - 80px);
+        background: radial-gradient(circle at top right, #0f172a, #020617);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 2rem;
+    }
+    .auth-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        padding: 3.5rem;
+        border-radius: 28px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+    .auth-card h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #ffffff, #6366f1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+    .auth-card p {
+        color: #94a3b8;
+        margin-bottom: 2.5rem;
+    }
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        text-align: left;
+    }
+    .form-field {
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+    .form-field.full-width {
+        grid-column: span 2;
+    }
+    .form-field label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #e2e8f0;
+        margin-bottom: 0.5rem;
+    }
+    .form-field input, .form-field textarea {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        font-family: 'Montserrat', sans-serif;
+        transition: all 0.3s ease;
+    }
+    .form-field input:focus, .form-field textarea:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #6366f1;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+    .auth-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+    .auth-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    @media (max-width: 640px) {
+        .auth-card {
+            padding: 2rem;
+        }
+    }
+</style>
+
+<section class="auth-page">
+    <div class="auth-card">
+        <h1>Agent Registration</h1>
+        <p>Join the K-DATA HUB network and unlock discounted prices.</p>
+        
+        <div style="background: rgba(99, 102, 241, 0.2); border: 1px solid #6366f1; border-radius: 12px; padding: 1rem; margin-bottom: 2rem; color: #e2e8f0;">
+            <h3 style="color: white; margin-bottom: 0.5rem;">Agent Registration Fee</h3>
+            <p style="font-size: 1.5rem; font-weight: 800; color: #6366f1; margin: 0;">₵25.00</p>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #94a3b8;">You will be redirected to Paystack to complete your payment.</p>
+        </div>
+
+        <form method="post" class="auth-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-grid">
+                {% for field in form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small style="color: #94a3b8; font-size: 0.75rem;">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div style="color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="auth-btn">Pay ₵25.00 & Register</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

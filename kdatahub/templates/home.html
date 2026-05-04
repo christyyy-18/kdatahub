@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - K-DATA HUB{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-copy">
+        <h1>Affordable Data Packages for Every Need</h1>
+        <p>Buy MTN, Airtel and Telecel plans instantly with K-DATA HUB. The best prices, fast delivery, and support on WhatsApp.</p>
+        <a href="https://wa.me/233594715103" class="btn btn-primary">Order via WhatsApp</a>
+        <a href="{% url 'orders:create_order' %}" class="btn btn-secondary">Place Order</a>
+    </div>
+    <div class="hero-info">
+        <div class="feature-card">
+            <h3>Fast Delivery</h3>
+            <p>Instant airtime and data delivery to your number.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Secure Payment</h3>
+            <p>Pay quickly with Paystack and verify your transaction instantly.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Trusted Service</h3>
+            <p>Leading data vendor with a growing customer base.</p>
+        </div>
+    </div>
+</section>
+
+<section class="pricelist-section">
+    <div class="section-header">
+        <h2>Price List</h2>
+        <p>Choose the best data bundle for your budget. All prices are in GHC and available through K-DATA HUB.</p>
+    </div>
+
+    <div class="pricelist-grid">
+        <div class="carrier-card carrier-mtn">
+            <div class="carrier-title">
+                <span>MTN</span>
+            </div>
+            <ul class="price-list">
+                <li><span>1 GB</span><span>GHC 6</span></li>
+                <li><span>2 GB</span><span>GHC 12</span></li>
+                <li><span>3 GB</span><span>GHC 18</span></li>
+                <li><span>4 GB</span><span>GHC 23</span></li>
+                <li><span>5 GB</span><span>GHC 28</span></li>
+                <li><span>6 GB</span><span>GHC 33</span></li>
+                <li><span>8 GB</span><span>GHC 43</span></li>
+                <li><span>10 GB</span><span>GHC 50</span></li>
+                <li><span>12 GB</span><span>GHC 60</span></li>
+                <li><span>15 GB</span><span>GHC 75</span></li>
+                <li><span>20 GB</span><span>GHC 96</span></li>
+                <li><span>25 GB</span><span>GHC 116</span></li>
+                <li><span>30 GB</span><span>GHC 137</span></li>
+                <li><span>40 GB</span><span>GHC 180</span></li>
+                <li><span>50 GB</span><span>GHC 215</span></li>
+                <li><span>100 GB</span><span>GHC 420</span></li>
+            </ul>
+        </div>
+
+        <div class="carrier-card carrier-airtel">
+            <div class="carrier-title">
+                <span>Airtel / AT</span>
+            </div>
+            <ul class="price-list">
+                <li><span>2 GB</span><span>GHC 10</span></li>
+                <li><span>3 GB</span><span>GHC 15</span></li>
+                <li><span>4 GB</span><span>GHC 18</span></li>
+                <li><span>5 GB</span><span>GHC 23</span></li>
+                <li><span>6 GB</span><span>GHC 28</span></li>
+                <li><span>8 GB</span><span>GHC 35</span></li>
+                <li><span>10 GB</span><span>GHC 45</span></li>
+                <li><span>12 GB</span><span>GHC 50</span></li>
+                <li><span>15 GB</span><span>GHC 65</span></li>
+                <li><span>20 GB</span><span>GHC 80</span></li>
+                <li><span>30 GB</span><span>GHC 95</span></li>
+                <li><span>40 GB</span><span>GHC 105</span></li>
+                <li><span>50 GB</span><span>GHC 120</span></li>
+                <li><span>80 GB</span><span>GHC 165</span></li>
+                <li><span>100 GB</span><span>GHC 195</span></li>
+                <li><span>200 GB</span><span>GHC 350</span></li>
+            </ul>
+        </div>
+
+        <div class="carrier-card carrier-telecel">
+            <div class="carrier-title">
+                <span>Telecel</span>
+            </div>
+            <ul class="price-list">
+                <li><span>5 GB</span><span>GHC 26</span></li>
+                <li><span>10 GB</span><span>GHC 47</span></li>
+                <li><span>15 GB</span><span>GHC 70</span></li>
+                <li><span>20 GB</span><span>GHC 90</span></li>
+                <li><span>30 GB</span><span>GHC 135</span></li>
+                <li><span>40 GB</span><span>GHC 180</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="price-notes">
+        <p>Buy all your affordable data packages from K-DATA HUB today. Prices are subject to availability and may change; contact us on WhatsApp for instant confirmation.</p>
+    </div>
+</section>
+{% endblock %}

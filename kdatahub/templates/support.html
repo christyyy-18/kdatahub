@@ -1,0 +1,504 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Support - K-DATA HUB{% endblock %}
+
+{% block content %}
+<div class="support-container">
+    <!-- Support Hero Section -->
+    <section class="hero support-hero">
+        <h1>Support Center</h1>
+        <p>We're here to help. Find answers to your questions or contact our support team.</p>
+    </section>
+
+    <!-- Search Bar -->
+    <section class="support-search">
+        <div class="search-container">
+            <input 
+                type="text" 
+                id="faq-search" 
+                class="search-input" 
+                placeholder="Search FAQs and articles..."
+                aria-label="Search support articles"
+            >
+            <button type="button" class="search-btn">
+                <span>🔍</span> Search
+            </button>
+        </div>
+    </section>
+
+    <!-- Main Support Content -->
+    <div class="support-content">
+        <!-- Support Options -->
+        <section class="support-options">
+            <div class="card support-card">
+                <div class="support-icon">📚</div>
+                <h3>Knowledge Base</h3>
+                <p>Browse our comprehensive documentation and guides</p>
+                <a href="#faq" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">View Articles</a>
+            </div>
+
+            <div class="card support-card">
+                <div class="support-icon">💬</div>
+                <h3>Live Chat</h3>
+                <p>Chat with our support team in real-time</p>
+                <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openLiveChat()">Start Chat</button>
+            </div>
+
+            <div class="card support-card">
+                <div class="support-icon">📧</div>
+                <h3>Email Support</h3>
+                <p>Send us an email and we'll respond within 24 hours</p>
+                <a href="mailto:support@kdatahub.com" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">Send Email</a>
+            </div>
+
+            <div class="card support-card">
+                <div class="support-icon">📞</div>
+                <h3>Phone Support</h3>
+                <p>Call our dedicated support hotline</p>
+                <a href="tel:+234-800-000-0000" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">Call Now</a>
+            </div>
+        </section>
+
+        <!-- Contact Form Section -->
+        <section class="support-form-section">
+            <div class="card">
+                <h2>Send us a Message</h2>
+                <form method="POST" class="support-form">
+                    {% csrf_token %}
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="support_name">Full Name *</label>
+                            <input 
+                                type="text" 
+                                id="support_name" 
+                                name="name" 
+                                required
+                                aria-label="Your full name"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="support_email">Email Address *</label>
+                            <input 
+                                type="email" 
+                                id="support_email" 
+                                name="email" 
+                                required
+                                aria-label="Your email address"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="support_phone">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                id="support_phone" 
+                                name="phone"
+                                aria-label="Your phone number"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="support_order">Order Number</label>
+                            <input 
+                                type="text" 
+                                id="support_order" 
+                                name="order_number"
+                                placeholder="Optional"
+                                aria-label="Your order number"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="support_category">Category *</label>
+                        <select id="support_category" name="category" required aria-label="Support category">
+                            <option value="">-- Select Category --</option>
+                            <option value="billing">Billing & Payment</option>
+                            <option value="technical">Technical Issues</option>
+                            <option value="orders">Orders & Delivery</option>
+                            <option value="account">Account & Profile</option>
+                            <option value="feedback">Feedback & Suggestions</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="support_priority">Priority</label>
+                        <select id="support_priority" name="priority" aria-label="Support priority">
+                            <option value="low">Low - General Inquiry</option>
+                            <option value="medium" selected>Medium - Needs Attention</option>
+                            <option value="high">High - Urgent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="support_message">Message *</label>
+                        <textarea 
+                            id="support_message" 
+                            name="message" 
+                            rows="6" 
+                            required
+                            placeholder="Please describe your issue in detail..."
+                            aria-label="Your support message"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input 
+                            type="checkbox" 
+                            id="support_follow_up" 
+                            name="follow_up"
+                        >
+                        <label for="support_follow_up" class="checkbox-label">
+                            Send me updates about my ticket
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Ticket</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq">
+            <h2 style="margin-bottom: 2rem; text-align: center;">Frequently Asked Questions</h2>
+
+            <div class="faq-container">
+                <!-- FAQ Item 1 -->
+                <div class="card faq-item">
+                    <div class="faq-question">
+                        <h3>How do I track my order?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>You can track your order in real-time by logging into your account and visiting the "My Orders" section. You'll see the current status and estimated delivery date for each order.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="card faq-item">
+                    <div class="faq-question">
+                        <h3>What is your refund policy?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer a 30-day money-back guarantee on all purchases. If you're not satisfied, simply contact our support team with your order number and we'll process your refund within 5-7 business days.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="card faq-item">
+                    <div class="faq-question">
+                        <h3>How long does delivery take?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Standard delivery typically takes 3-5 business days. Express delivery is available for 1-2 business days. The delivery timeframe will be shown at checkout based on your location.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="card faq-item">
+                    <div class="faq-question">
+                        <h3>Can I cancel or modify an order?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Orders can be cancelled or modified within 2 hours of placement. After that, your order will be in processing. For urgent changes, please contact our support team immediately.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="card faq-item">
+                    <div class="faq-question">
+                        <h3>Do you offer bulk discounts?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes! We offer special pricing for bulk orders. For orders of 10 or more units, please contact our sales team at sales@kdatahub.com for a custom quote.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="card faq-item">
+                    <div class="faq-question">
+                        <h3>Is my payment information secure?</h3>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely! We use industry-leading SSL encryption and PCI DSS compliance to ensure your payment information is always secure. Your data is never stored on our servers.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status Check Section -->
+        <section class="ticket-status">
+            <div class="card">
+                <h2>Check Your Ticket Status</h2>
+                <p style="margin-bottom: 1.5rem;">Enter your ticket number to check the status of your support request.</p>
+                <div class="form-group">
+                    <label for="ticket_number">Ticket Number</label>
+                    <input 
+                        type="text" 
+                        id="ticket_number" 
+                        placeholder="E.g., TKT-123456"
+                        aria-label="Your ticket number"
+                    >
+                </div>
+                <button type="button" class="btn btn-primary" onclick="checkTicketStatus()">Check Status</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+    .support-container {
+        margin: 0 auto;
+    }
+
+    .support-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        text-align: center;
+        color: white;
+        padding: 3rem 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .support-search {
+        margin: 2rem auto;
+        max-width: 600px;
+        padding: 0 2rem;
+    }
+
+    .search-container {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-btn {
+        padding: 12px 24px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+        background: #764ba2;
+        transform: translateY(-2px);
+    }
+
+    .support-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .support-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .support-card {
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .support-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .support-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .support-form-section {
+        margin: 3rem 0;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .support-form select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .faq-container {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 3rem;
+    }
+
+    .faq-item {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+        padding: 1.5rem 0;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .faq-question h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .faq-toggle {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+        transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-toggle {
+        transform: rotate(45deg);
+    }
+
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+        padding: 0 1.5rem;
+    }
+
+    .faq-item.active .faq-answer {
+        max-height: 500px;
+        opacity: 1;
+        padding: 1.5rem 0;
+    }
+
+    .faq-answer p {
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .ticket-status {
+        margin-bottom: 3rem;
+    }
+
+    @media (max-width: 768px) {
+        .search-container {
+            flex-direction: column;
+        }
+
+        .search-btn {
+            width: 100%;
+        }
+
+        .support-options {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .support-hero h1 {
+            font-size: 2rem;
+        }
+
+        .support-search {
+            padding: 0 1rem;
+        }
+
+        .support-content {
+            padding: 0 1rem;
+        }
+    }
+</style>
+
+<script>
+    // FAQ Toggle Functionality
+    document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+            const faqItem = this.closest('.faq-item');
+            faqItem.classList.toggle('active');
+        });
+    });
+
+    // Search FAQ
+    document.getElementById('faq-search')?.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        document.querySelectorAll('.faq-item').forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+
+    // Open Live Chat
+    function openLiveChat() {
+        alert('Live chat feature would be integrated with a service like Intercom or Zendesk');
+    }
+
+    // Check Ticket Status
+    function checkTicketStatus() {
+        const ticketNumber = document.getElementById('ticket_number').value;
+        if (!ticketNumber) {
+            alert('Please enter a ticket number');
+            return;
+        }
+        alert(`Checking status for ticket: ${ticketNumber}`);
+        // Would make an API call here
+    }
+</script>
+{% endblock %}
