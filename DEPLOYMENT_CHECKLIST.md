@@ -10,7 +10,10 @@
 
 ## 🔴 CRITICAL ISSUES (Fix Before Deployment)
 
-### 1. **Hardcoded Callback URL in Paystack Integration**
+### 1. ✅ **Media Storage Configured for AWS S3**
+- **Status:** FIXED ✅
+- **Configuration:** Settings now support both local storage and AWS S3
+- **Implementation:** See [AWS_S3_SETUP.md](AWS_S3_SETUP.md) for complete guide
 - **File:** `payments/utils.py` (Line 13)
 - **Issue:** Callback URL is hardcoded to `https://kdataflow.com/payments/verify/`
 - **Impact:** Payment verification will fail on Render domain
@@ -20,43 +23,33 @@
   ```
 - **Action:** Add `BASE_DOMAIN` to settings.py from environment variable
 
-### 2. **DEBUG Mode Enabled in Production**
+### 3. **DEBUG Mode Enabled in Production**
 - **File:** `.env`
 - **Issue:** `DEBUG=True` - exposes sensitive information in error pages
 - **Impact:** Security vulnerability
 - **Fix:** Set `DEBUG=False` in Render environment variables
 
-### 3. **Insecure SECRET_KEY**
+### 4. **Insecure SECRET_KEY**
 - **File:** `settings.py` (Line 28) and `.env`
 - **Issue:** Default SECRET_KEY is visible in code
 - **Impact:** Session hijacking, CSRF token vulnerability
 - **Fix:** Generate a new SECRET_KEY and store in Render environment variables only
 - **Action:** `python manage.py shell -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
 
-### 4. **.gitignore Missing - Secrets Exposed**
-- **Issue:** `.env` file is committed to GitHub with database credentials and API keys
-- **Impact:** CRITICAL SECURITY BREACH - anyone can access your database and payment keys
-- **Affected Credentials:**
-  - PostgreSQL credentials (USER, PASSWORD, HOST, PORT)
-  - Paystack keys (if added)
-  - SendGrid API key (if added)
-  - Arkesel API key (visible in .env)
-  - Manager/Admin phone numbers
-- **Fix Required:**
-  1. Create `.gitignore` immediately
-  2. Remove `.env` from git history: `git rm --cached .env`
-  3. Commit git changes: `git commit -m "Remove .env from version control"`
-  4. Never commit `.env` files again
+### 5. ✅ **.gitignore Missing - Secrets Exposed (FIXED)**
+- **Status:** FIXED ✅
+- **Files Changed:** 
+  - `.gitignore` created
+  - `.env` removed from git history
+- **Verification:** Run `git log --all --oneline` to confirm
 
-### 5. **Media Files Storage Issue**
-- **File:** `settings.py` (Line 161-162)
-- **Issue:** Render uses ephemeral storage - media files will be lost after deployment
-- **Impact:** Profile pictures and uploads will disappear
-- **Solutions:**
-  - Use AWS S3 (recommended)
-  - Use Cloudinary
-  - Use Render Disk Storage (if using Pro plan)
-- **Current:** Using local file storage (NOT production-ready)
+### 6. ✅ **SendGrid Email Configuration Removed**
+- **Status:** REMOVED ✅
+- **Changes:**
+  - SendGrid configuration removed from `settings.py`
+  - `sendgrid`, `python-http-client`, `starkbank-ecdsa` removed from requirements
+  - Using only Arkesel SMS and Paystack for user communication
+- **Files Updated:** `settings.py`, `requirements.txt`
 
 ---
 
@@ -144,65 +137,62 @@
 
 ### BEFORE PUSHING TO RENDER:
 
-1. **[ ] IMMEDIATE - Create .gitignore**
-   ```bash
-   echo ".env" >> .gitignore
-   echo "*.pyc" >> .gitignore
-   echo "__pycache__/" >> .gitignore
-   echo "staticfiles/" >> .gitignore
-   echo "*.sqlite3" >> .gitignore
-   git add .gitignore
-   git commit -m "Add .gitignore"
-   git rm --cached .env
-   git commit -m "Remove .env from version control"
-   git push
-   ```
+1. **[ ] DONE ✅ - Create .gitignore**
 
-2. **[ ] IMMEDIATE - Fix Paystack Callback URL**
-   - Update `payments/utils.py`
-   - Add `BASE_DOMAIN` to settings.py
-   - Test with environment variables
+2. **[ ] DONE ✅ - Fix Paystack Callback URL**
 
-3. **[ ] Generate New SECRET_KEY**
+3. **[ ] DONE ✅ - Remove SendGrid, Add S3 Support**
+   - SendGrid removed from settings and requirements
+   - django-storages and boto3 added
+   - Dynamic S3 configuration ready
+
+4. **[ ] Generate New SECRET_KEY**
    ```bash
    python manage.py shell -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 
-4. **[ ] Set Up Render Environment Variables**
-   - Copy all variables from `.env` (except removing DEBUG and using new SECRET_KEY)
-   - Configure DATABASE_URL in Render PostgreSQL addon
-
 5. **[ ] Solve Media Storage** (Choose One)
-   - [ ] Setup AWS S3 bucket + boto3
-   - [ ] Setup Cloudinary
-   - [ ] Setup Render Disk Storage
-   - Configure `MEDIA_URL` and `MEDIA_ROOT` accordingly
+   - [ ] ✅ **AWS S3 (Recommended)** - See [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
+     - Create AWS account
+     - Create S3 bucket
+     - Generate IAM access keys
+     - Set `USE_S3=True` in Render environment
+   - [ ] Alternative: Cloudinary
+   - [ ] Alternative: Render Disk Storage (Pro only)
 
-6. **[ ] Verify All API Keys**
-   - [ ] Paystack keys are valid
-   - [ ] SendGrid API key works
-   - [ ] Arkesel API key is active
-   - [ ] SMS testing in production environment
+6. **[ ] Setup Paystack** - See [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md)
+   - [ ] Create Paystack account
+   - [ ] Complete business verification
+   - [ ] Get Live API keys (pk_live_, sk_live_)
+   - [ ] Configure webhook: `https://kdatahub.onrender.com/payments/webhook/paystack/`
+   - [ ] Test payment flow with test cards
 
-7. **[ ] Test Locally with Production Settings**
-   ```bash
-   DEBUG=False python manage.py runserver
-   # Should fail if SECRET_KEY is not set - this is good!
-   ```
+7. **[ ] Configure Arkesel SMS**
+   - [ ] Get API key from Arkesel dashboard
+   - [ ] Verify API key is active
+   - [ ] Test SMS sending in development
 
-8. **[ ] Review ALLOWED_HOSTS**
-   - Update to your actual Render domain
-   - Current: `localhost,127.0.0.1,.onrender.com`
+8. **[ ] Set Up Render Environment Variables** - See [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md)
+   - [ ] `DEBUG=False`
+   - [ ] `SECRET_KEY=<generate-new>`
+   - [ ] `BASE_DOMAIN=<your-render-domain>`
+   - [ ] `DATABASE_URL=<from-render-postgres>`
+   - [ ] `PAYSTACK_PUBLIC_KEY=pk_live_...`
+   - [ ] `PAYSTACK_SECRET_KEY=sk_live_...`
+   - [ ] `ARKESEL_API_KEY=<your-key>`
+   - [ ] `USE_S3=True`
+   - [ ] AWS S3 credentials (5 variables)
 
-9. **[ ] Create Render.yaml Configuration** (Optional but Recommended)
-   - Specify build and start commands
-   - Define environment variables
-   - Set up cron jobs if needed
+9. **[ ] Verify All Dependencies**
+   - [ ] `pip install -r requirements.txt` (boto3, django-storages added)
+   - [ ] `python manage.py check --deploy`
+   - [ ] `python manage.py makemigrations --check`
+   - [ ] `python manage.py collectstatic --no-input --dry-run`
 
-10. **[ ] Run Deployment Checks**
-    - [ ] `python manage.py check --deploy`
-    - [ ] `python manage.py makemigrations --check`
-    - [ ] `python manage.py collectstatic --no-input --dry-run`
+10. **[ ] Final Git Push**
+    - [ ] All changes committed
+    - [ ] `.env` NOT in repository
+    - [ ] No secrets in git history
 
 ---
 
@@ -252,13 +242,14 @@
 | Component | Status | Notes |
 |-----------|--------|-------|
 | Django Setup | ✅ Ready | 5.0.2 with proper config |
-| Database | ⚠️ Partial | Works but needs Render PostgreSQL setup |
+| Database | ✅ Ready | PostgreSQL + LocalDev support |
 | Static Files | ✅ Ready | WhiteNoise configured |
-| Media Files | ❌ Not Ready | Needs S3 or Cloudinary |
-| Email | ✅ Ready | SendGrid configured |
+| Media Files (S3) | ✅ Ready | AWS S3 + boto3 integrated |
+| Media Files (Local) | ✅ Ready | Fallback for development |
+| Email | ✅ Removed | SendGrid removed, Arkesel only |
 | SMS | ✅ Ready | Arkesel with fallback |
-| Payments | ⚠️ Partial | Callback URL needs fixing |
-| Security | ⚠️ Partial | DEBUG/SECRET_KEY/Secrets exposed |
+| Payments | ✅ Ready | Paystack fully configured |
+| Security | ✅ Partial | .gitignore added, needs SECRET_KEY generation |
 | Build Script | ✅ Ready | Procfile and build.sh ready |
 
 ---
