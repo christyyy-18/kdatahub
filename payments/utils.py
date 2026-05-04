@@ -8,11 +8,12 @@ def initialize_payment(order, email):
         'Authorization': f'Bearer {settings.PAYSTACK_SECRET_KEY}',
         'Content-Type': 'application/json',
     }
+    callback_url = f'{settings.BASE_DOMAIN}/payments/verify/'
     payload = {
         'email': email,
         'amount': int(order.total_amount * 100),  # Convert to kobo
         'reference': order.order_id,
-        'callback_url': 'https://kdataflow.com/payments/verify/',
+        'callback_url': callback_url,
     }
     
     response = requests.post(url, headers=headers, json=payload)
