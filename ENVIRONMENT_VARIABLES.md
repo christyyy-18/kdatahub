@@ -124,11 +124,10 @@ Use this as a reference when setting up Render:
 | `SMS_SENDER_ID` | `KDATAHUB` | Your choice |
 | `MANAGER_PHONE` | `+233594715103` | Your phone |
 | `ADMIN_PHONE` | `0552514207` | Your phone |
-| `USE_S3` | `True` | Boolean |
-| `AWS_STORAGE_BUCKET_NAME` | `kdatahub-media` | AWS bucket name |
-| `AWS_S3_ACCESS_KEY_ID` | From IAM user | AWS IAM dashboard |
-| `AWS_S3_SECRET_ACCESS_KEY` | From IAM user | AWS IAM dashboard |
-| `AWS_S3_REGION_NAME` | `us-east-1` | AWS region |
+| `USE_SUPABASE` | `True` | Boolean |
+| `SUPABASE_URL` | `https://...supabase.co` | Supabase project URL |
+| `SUPABASE_KEY` | Service Role Secret | Supabase API key |
+| `SUPABASE_STORAGE_BUCKET` | `kdatahub-media` | Bucket name |
 
 ---
 
@@ -163,13 +162,12 @@ MANAGER_PHONE=+233594715103
 ADMIN_PHONE=0552514207
 ```
 
-### Feature: Media Storage (AWS S3)
+### Feature: Media Storage (Supabase)
 ```
-USE_S3=True
-AWS_STORAGE_BUCKET_NAME=kdatahub-media
-AWS_S3_ACCESS_KEY_ID=AKIA...
-AWS_S3_SECRET_ACCESS_KEY=wJal...
-AWS_S3_REGION_NAME=us-east-1
+USE_SUPABASE=True
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=eyJhbGc... (Service Role Secret)
+SUPABASE_STORAGE_BUCKET=kdatahub-media
 ```
 
 ### Feature: Database (PostgreSQL)
@@ -220,6 +218,9 @@ See: [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md) - Step 3
 ### AWS S3 Credentials
 See: [AWS_S3_SETUP.md](AWS_S3_SETUP.md) - Steps 5-6
 
+### Supabase Credentials
+See: [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Steps 3-5
+
 ### Arkesel API Key
 1. Log in to Arkesel dashboard: https://dashboard.arkesel.com/
 2. Go to **API Keys**
@@ -241,7 +242,7 @@ python manage.py shell
 >>> print(f"DEBUG: {settings.DEBUG}")
 >>> print(f"SECRET_KEY: {settings.SECRET_KEY[:20]}...")  # First 20 chars only
 >>> print(f"PAYSTACK_SECRET_KEY configured: {bool(settings.PAYSTACK_SECRET_KEY)}")
->>> print(f"AWS S3 configured: {bool(settings.USE_S3)}")
+>>> print(f"Supabase configured: {bool(settings.USE_SUPABASE)}")
 ```
 
 ---

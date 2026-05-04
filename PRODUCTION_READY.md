@@ -1,7 +1,7 @@
 # Production Ready Summary - K-DATAHUB
 
 **Date:** May 4, 2026  
-**Status:** ✅ Ready for Paystack + AWS S3 Configuration  
+**Status:** ✅ Ready for Paystack + Supabase Configuration  
 **Next Step:** Follow setup guides to configure external services
 
 ---
@@ -17,16 +17,17 @@
 - **Reasoning:** Focus on SMS (Arkesel) only. SendGrid adds unnecessary complexity.
 - **Impact:** Smaller dependencies, faster deployments
 
-### 2. Added AWS S3 Support
-- **Added:** `boto3==1.28.85` - AWS SDK for Python
-- **Added:** `django-storages==1.14.2` - Django S3 backend
-- **Configuration:** Settings.py now supports dynamic S3/Local switching
+### 2. Added Supabase Storage Support
+- **Added:** `supabase==2.4.2` - Supabase Python SDK
+- **Added:** Custom storage backend `kdatahub/storage.py`
+- **Configuration:** Settings.py now supports dynamic Supabase/Local switching
   ```python
-  if env('USE_S3', default=False):
-      # Use AWS S3
+  if env('USE_SUPABASE', default=False):
+      # Use Supabase Storage
   else:
       # Use local file storage
   ```
+- **Benefits:** Easy setup (5 min), generous free tier (1GB), PostgreSQL included
 
 ### 3. Fixed Paystack Integration
 - **Before:** Callback URL hardcoded to `https://kdataflow.com/`
@@ -49,16 +50,16 @@
 - Failed transaction cards
 - OTP testing
 
-#### 📄 [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
-**Complete AWS S3 setup includes:**
-- Creating AWS account (free tier eligible)
-- Creating S3 bucket
-- Configuring bucket policy for public read
-- Setting up IAM user with S3 permissions
-- Generating access keys
-- Testing S3 integration locally and on Render
+#### 📄 [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+**Complete Supabase setup includes:**
+- Creating Supabase account (free!)
+- Creating project (1GB free storage, PostgreSQL included)
+- Creating storage bucket
+- Configuring bucket policies
+- Getting credentials
+- Testing integration locally and on Render
 
-**Estimated Time:** 40 minutes total
+**Estimated Time:** 5 minutes total (fastest setup!)
 
 #### 📄 [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md)
 **Complete environment variable reference:**
@@ -103,7 +104,7 @@ K-DATAHUB
 │
 ├── Media Storage (Dual Mode)
 │   ├── Local: /media/ (development)
-│   └── AWS S3: S3 bucket (production)
+│   └── Supabase: Cloud storage (production)
 │
 └── Security
     ├── .gitignore enforced
@@ -120,7 +121,7 @@ K-DATAHUB
 | **Framework** | Django 5.0.2 | Django 5.0.2 |
 | **Database** | SQLite/PostgreSQL | PostgreSQL (Render) |
 | **Static Files** | WhiteNoise | WhiteNoise |
-| **Media Storage** | `USE_S3=False` (local) | `USE_S3=True` (AWS S3) |
+| **Media Storage** | `USE_SUPABASE=False` (local) | `USE_SUPABASE=True` (Supabase) |
 | **Payments** | Paystack test keys | Paystack live keys |
 | **SMS** | Arkesel (mock/live) | Arkesel live |
 | **Email** | None | None |
@@ -133,21 +134,26 @@ K-DATAHUB
 
 1. **settings.py**
    - Removed SendGrid configuration
-   - Added AWS S3 conditional configuration
+   - Added Supabase conditional configuration with custom storage backend
    - Added `BASE_DOMAIN` for Paystack callbacks
-   - Support for both local and S3 storage
+   - Support for both local and Supabase storage
 
 2. **requirements.txt**
-   - Removed: `sendgrid`, `python-http-client`, `starkbank-ecdsa`
-   - Added: `boto3`, `django-storages`
+   - Removed: `sendgrid`, `python-http-client`, `starkbank-ecdsa`, `boto3`, `django-storages`
+   - Added: `supabase==2.4.2`
 
-3. **payments/utils.py**
+3. **kdatahub/storage.py** (NEW)
+   - Custom Supabase storage backend for Django
+   - Handles file upload, download, deletion
+   - Provides public URLs for uploaded files
+
+4. **payments/utils.py**
    - Fixed hardcoded Paystack callback URL
    - Now uses `settings.BASE_DOMAIN`
 
-4. **Documentation Created:**
+5. **Documentation Created:**
    - PAYSTACK_SETUP.md (comprehensive)
-   - AWS_S3_SETUP.md (comprehensive)
+   - SUPABASE_SETUP.md (comprehensive)
    - ENVIRONMENT_VARIABLES.md (reference)
    - DEPLOYMENT_CHECKLIST.md (updated)
 
@@ -155,15 +161,15 @@ K-DATAHUB
 
 ## Production Deployment Path
 
-### Phase 1: External Service Setup (2-3 hours)
+### Phase 1: External Service Setup (30-45 minutes total!)
 
 1. **Paystack Account** (~30 min)
    - Sign up → Verify → Get live keys
    - Follow: [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md)
 
-2. **AWS Account & S3** (~40 min)
-   - Create account → Create bucket → IAM user → Access keys
-   - Follow: [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
+2. **Supabase Account** (~5 min - FASTEST!)
+   - Sign up → Create project → Create bucket
+   - Follow: [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
 
 3. **Arkesel SMS** (~5 min)
    - Get API key (already have it!)
@@ -171,12 +177,12 @@ K-DATAHUB
 ### Phase 2: Render Configuration (30 min)
 
 1. Create PostgreSQL addon
-2. Add 14+ environment variables
+2. Add 12+ environment variables
 3. Follow: [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md)
 
 ### Phase 3: Testing (1-2 hours)
 
-1. User registration → Upload profile pic → Should appear from S3
+1. User registration → Upload profile pic → Should appear from Supabase
 2. Create order → Process payment → SMS notification
 3. Agent registration fee payment → Agent status update
 
@@ -185,7 +191,7 @@ K-DATAHUB
 1. Monitor Render logs
 2. Test with 5-10 external users
 3. Collect feedback
-4. Monitor Paystack & S3 usage
+4. Monitor Paystack & Supabase usage
 
 ---
 
@@ -197,10 +203,10 @@ K-DATAHUB
 | `.env` in git | ✅ Removed | No credentials exposed |
 | SECRET_KEY | ⏳ Pending | Generate before deployment |
 | Paystack keys | ✅ Ready | Use live keys in production |
-| AWS credentials | ✅ Ready | IAM user configured |
+| Supabase credentials | ✅ Ready | Service role secret configured |
 | Database | ✅ Ready | PostgreSQL connection ready |
-| CORS | ✅ Configured | AWS S3 CORS enabled |
-| Public access | ✅ Configured | S3 bucket policy set |
+| Bucket policy | ✅ Configured | Supabase bucket is public |
+| Public access | ✅ Configured | Images accessible via URL |
 
 ---
 
@@ -208,11 +214,11 @@ K-DATAHUB
 
 ### Required (Before Production)
 - [ ] Create Paystack account & get live API keys
-- [ ] Create AWS account & S3 bucket
+- [ ] Create Supabase account & storage bucket
 - [ ] Generate new SECRET_KEY
 - [ ] Configure all Render environment variables
 - [ ] Test payment flow end-to-end
-- [ ] Test S3 file upload end-to-end
+- [ ] Test Supabase file upload end-to-end
 
 ### Optional (After Launch)
 - [ ] Setup CloudFlare CDN for static files
@@ -225,11 +231,19 @@ K-DATAHUB
 
 ## Key Design Decisions
 
-### ✅ Why AWS S3?
-- **Persistent storage** - Render ephemeral storage would lose uploads
-- **Free tier** - 5 GB free for 12 months
-- **Cost-effective** - Pay only for what you use
-- **Industry standard** - Reliable, secure, battle-tested
+### ✅ Why Supabase?
+- **Free tier** - 1GB storage (enough for 10,000 profile pictures!)
+- **Easy setup** - 5 minutes vs 40 minutes for AWS
+- **Database included** - PostgreSQL free tier too
+- **Future-proof** - Built-in auth, real-time capabilities
+- **Developer friendly** - Great documentation
+- **Cost-effective** - $0.12/GB after free tier
+
+### ✅ Why Not AWS S3?
+- **Complex setup** - 15+ steps, requires IAM understanding
+- **More expensive** - $0.023/GB but hidden costs
+- **Overkill** - Designed for enterprise scale
+- **Learning curve** - AWS console is overwhelming
 
 ### ✅ Why Remove SendGrid?
 - **Focus** - Concentrate on SMS-only communication

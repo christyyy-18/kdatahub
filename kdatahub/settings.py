@@ -144,20 +144,16 @@ if not PAYSTACK_SECRET_KEY or not PAYSTACK_PUBLIC_KEY:
     import warnings
     warnings.warn('⚠️ Paystack keys not configured. Payment functionality will be disabled.')
 
-# AWS S3 Configuration for Media Files
-if env('USE_S3', default=False):
-    # AWS S3
-    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='')
-    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-1')
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-    AWS_S3_ACCESS_KEY_ID = env('AWS_S3_ACCESS_KEY_ID', default='')
-    AWS_S3_SECRET_ACCESS_KEY = env('AWS_S3_SECRET_ACCESS_KEY', default='')
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_QUERYSTRING_AUTH = False
+# Supabase Storage Configuration for Media Files
+if env('USE_SUPABASE', default=False):
+    # Supabase Storage
+    SUPABASE_URL = env('SUPABASE_URL', default='')
+    SUPABASE_KEY = env('SUPABASE_KEY', default='')
+    SUPABASE_STORAGE_BUCKET = env('SUPABASE_STORAGE_BUCKET', default='kdatahub-media')
     
-    # S3 Media Settings
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    # Supabase Media Settings
+    MEDIA_URL = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_STORAGE_BUCKET}/'
+    DEFAULT_FILE_STORAGE = 'kdatahub.storage.SupabaseStorage'
 else:
     # Local Media Storage (Development/Testing)
     MEDIA_URL = '/media/'

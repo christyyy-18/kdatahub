@@ -10,18 +10,14 @@
 
 ## 🔴 CRITICAL ISSUES (Fix Before Deployment)
 
-### 1. ✅ **Media Storage Configured for AWS S3**
+### 1. ✅ **Media Storage Configured for Supabase**
 - **Status:** FIXED ✅
-- **Configuration:** Settings now support both local storage and AWS S3
-- **Implementation:** See [AWS_S3_SETUP.md](AWS_S3_SETUP.md) for complete guide
-- **File:** `payments/utils.py` (Line 13)
-- **Issue:** Callback URL is hardcoded to `https://kdataflow.com/payments/verify/`
-- **Impact:** Payment verification will fail on Render domain
-- **Fix Required:**
-  ```python
-  callback_url = f'{settings.BASE_DOMAIN}/payments/verify/'
-  ```
-- **Action:** Add `BASE_DOMAIN` to settings.py from environment variable
+- **Configuration:** Settings now support both local storage and Supabase
+- **Implementation:** See [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for complete guide
+- **Custom Backend:** Custom `kdatahub/storage.py` created for Supabase integration
+- **File:** `kdatahub/settings.py`
+- **Details:** Django now routes media uploads to Supabase when `USE_SUPABASE=True`
+- **Action:** Follow SUPABASE_SETUP.md steps to create Supabase project and configure environment variables
 
 ### 3. **DEBUG Mode Enabled in Production**
 - **File:** `.env`
@@ -107,14 +103,14 @@
 - Session security in place
 
 ### ✅ Email Configuration
-- SendGrid SMTP setup ready
+- Arkesel SMS setup ready
 - API key support through environment variables
-- Default from email configured
-
-### ✅ SMS Integration
-- Arkesel API configured with fallback mock mode
-- API key management through environment variables
 - Proper error handling and logging
+
+### ✅ Supabase Storage Integration
+- Custom storage backend created (`kdatahub/storage.py`)
+- Python SDK installed (`supabase==2.4.2`)
+- Conditional storage backend (Supabase vs local)
 
 ### ✅ Payment Integration
 - Paystack integration in place
@@ -141,24 +137,27 @@
 
 2. **[ ] DONE ✅ - Fix Paystack Callback URL**
 
-3. **[ ] DONE ✅ - Remove SendGrid, Add S3 Support**
-   - SendGrid removed from settings and requirements
-   - django-storages and boto3 added
-   - Dynamic S3 configuration ready
+3. **[ ] DONE ✅ - Configure Media Storage with Supabase**
+   - Supabase storage backend configured in settings
+   - Custom storage class created in `kdatahub/storage.py`
+   - `supabase==2.4.2` added to requirements.txt
+   - Conditional storage backend (Supabase vs local)
 
 4. **[ ] Generate New SECRET_KEY**
    ```bash
    python manage.py shell -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
    ```
 
-5. **[ ] Solve Media Storage** (Choose One)
-   - [ ] ✅ **AWS S3 (Recommended)** - See [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
-     - Create AWS account
-     - Create S3 bucket
-     - Generate IAM access keys
-     - Set `USE_S3=True` in Render environment
-   - [ ] Alternative: Cloudinary
-   - [ ] Alternative: Render Disk Storage (Pro only)
+5. **[ ] Setup Supabase** (Choose One)
+   - [ ] **Supabase (Recommended)** - See [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+     - Create Supabase account (free)
+     - Create project (1GB free storage)
+     - Create storage bucket "kdatahub-media"
+     - Configure bucket policies
+     - Get Service Role Secret key
+     - Set `USE_SUPABASE=True` in Render environment
+   - [ ] Alternative: Cloudinary (image optimization)
+   - [ ] Alternative: AWS S3 (if you prefer)
 
 6. **[ ] Setup Paystack** - See [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md)
    - [ ] Create Paystack account
@@ -180,11 +179,13 @@
    - [ ] `PAYSTACK_PUBLIC_KEY=pk_live_...`
    - [ ] `PAYSTACK_SECRET_KEY=sk_live_...`
    - [ ] `ARKESEL_API_KEY=<your-key>`
-   - [ ] `USE_S3=True`
-   - [ ] AWS S3 credentials (5 variables)
+   - [ ] `USE_SUPABASE=True`
+   - [ ] `SUPABASE_URL=<your-project-url>`
+   - [ ] `SUPABASE_KEY=<service-role-secret>`
+   - [ ] `SUPABASE_STORAGE_BUCKET=kdatahub-media`
 
 9. **[ ] Verify All Dependencies**
-   - [ ] `pip install -r requirements.txt` (boto3, django-storages added)
+   - [ ] `pip install -r requirements.txt` (supabase==2.4.2 added)
    - [ ] `python manage.py check --deploy`
    - [ ] `python manage.py makemigrations --check`
    - [ ] `python manage.py collectstatic --no-input --dry-run`
