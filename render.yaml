@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: k-datahub-api
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn kdatahub.wsgi:application
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "*.onrender.com"
+      - key: BASE_DOMAIN
+        fromService:
+          type: web
+          property: url
+      - key: PAYSTACK_PUBLIC_KEY
+        value: pk_test_e1d08c6ef49e121abfbe793624ace1a7d3a52247
+      - key: PAYSTACK_SECRET_KEY
+        value: sk_test_4ee6970338e7b5f88a35b6bf6cf0a40036c38022
+      - key: ARKESEL_API_KEY
+        value: WlBRT0hubWFmWVJXTWlKSnl4UU8
+      - key: SMS_SENDER_ID
+        value: KDATAHUB
+      - key: MANAGER_PHONE
+        value: "+233594715103"
+      - key: ADMIN_PHONE
+        value: "0552514207"
+      - key: DEFAULT_FROM_EMAIL
+        value: noreply@kdataflow.com
+      - key: USE_SUPABASE
+        value: "False"
+      - fromDatabase:
+          name: k-datahub-db
+          property: connectionString
+        key: DATABASE_URL
+
+  - type: pserv
+    name: k-datahub-db
+    runtime: postgres15
+    plan: free
+    ipAllowList: []

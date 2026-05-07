@@ -145,7 +145,8 @@ if not PAYSTACK_SECRET_KEY or not PAYSTACK_PUBLIC_KEY:
     warnings.warn('⚠️ Paystack keys not configured. Payment functionality will be disabled.')
 
 # Supabase Storage Configuration for Media Files
-if env('USE_SUPABASE', default=False):
+USE_SUPABASE = env.bool('USE_SUPABASE', default=False)
+if USE_SUPABASE:
     # Supabase Storage
     SUPABASE_URL = env('SUPABASE_URL', default='')
     SUPABASE_KEY = env('SUPABASE_KEY', default='')
