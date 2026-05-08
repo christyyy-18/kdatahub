@@ -132,8 +132,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-WHITENOISE_MANIFEST_STRICT = False  # Prevent crashes if a static file is missing
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# WHITENOISE_MANIFEST_STRICT = False  # Not needed for non-manifest storage
 
 # Media files (Local)
 MEDIA_ROOT = BASE_DIR / 'media'
