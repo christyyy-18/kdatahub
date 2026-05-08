@@ -21,7 +21,7 @@ USE_POSTGRES=True
 
 # Domain Configuration
 BASE_DOMAIN=http://localhost:8000
-ALLOWED_HOSTS=localhost,127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1,.vercel.app,.onrender.com
 
 # Paystack (Test Keys)
 PAYSTACK_PUBLIC_KEY=pk_test_XXXXXXXXXXXXXXXXXX
@@ -32,14 +32,6 @@ ARKESEL_API_KEY=your_arkesel_api_key
 SMS_SENDER_ID=KDATAHUB
 MANAGER_PHONE=+233594715103
 ADMIN_PHONE=0552514207
-
-# AWS S3 (Optional - for development)
-USE_S3=False
-# Only needed if USE_S3=True:
-# AWS_STORAGE_BUCKET_NAME=kdatahub-media
-# AWS_S3_ACCESS_KEY_ID=your_access_key
-# AWS_S3_SECRET_ACCESS_KEY=your_secret_key
-# AWS_S3_REGION_NAME=us-east-1
 ```
 
 ---
@@ -96,15 +88,6 @@ MANAGER_PHONE=+233594715103
 ADMIN_PHONE=0552514207
 ```
 
-### 6. AWS S3 Configuration
-```
-USE_S3=True
-AWS_STORAGE_BUCKET_NAME=kdatahub-media
-AWS_S3_ACCESS_KEY_ID=AKIA...
-AWS_S3_SECRET_ACCESS_KEY=wJal...
-AWS_S3_REGION_NAME=us-east-1
-```
-
 ---
 
 ## Complete Render Environment Variables Checklist
@@ -115,8 +98,8 @@ Use this as a reference when setting up Render:
 |----------|-------|--------|
 | `DEBUG` | `False` | Generated |
 | `SECRET_KEY` | Generated value | `python manage.py shell` |
-| `ALLOWED_HOSTS` | `kdatahub.onrender.com` | Render domain |
-| `BASE_DOMAIN` | `https://kdatahub.onrender.com` | Render domain |
+| `ALLOWED_HOSTS` | `kdatahub.vercel.app` | Vercel domain |
+| `BASE_DOMAIN` | `https://kdatahub.vercel.app` | Vercel domain |
 | `DATABASE_URL` | From PostgreSQL addon | Render addon |
 | `PAYSTACK_PUBLIC_KEY` | `pk_live_...` | Paystack dashboard |
 | `PAYSTACK_SECRET_KEY` | `sk_live_...` | Paystack dashboard |
@@ -193,8 +176,8 @@ ALLOWED_HOSTS=kdatahub.onrender.com
 | `DATABASE_URL` | Local SQLite/PostgreSQL | Render PostgreSQL |
 | `BASE_DOMAIN` | `http://localhost:8000` | `https://kdatahub.onrender.com` |
 | Paystack Keys | Test keys (`pk_test_`) | Live keys (`pk_live_`) |
-| `USE_S3` | `False` (local storage) | `True` (AWS S3) |
-| Media Storage | Local `media/` folder | AWS S3 bucket |
+| `USE_SUPABASE` | `False` (local storage) | `True` (Supabase) |
+| Media Storage | Local `media/` folder | Supabase storage |
 
 ---
 
@@ -215,8 +198,7 @@ python manage.py shell
 ### Paystack Keys
 See: [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md) - Step 3
 
-### AWS S3 Credentials
-See: [AWS_S3_SETUP.md](AWS_S3_SETUP.md) - Steps 5-6
+### Paystack Keys
 
 ### Supabase Credentials
 See: [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Steps 3-5
@@ -272,9 +254,8 @@ python manage.py shell
 - Check Paystack keys are valid for the environment (test/live)
 
 ### Media files not uploading
-- If `USE_S3=False`: Check local `media/` folder writable
-- If `USE_S3=True`: Verify AWS credentials and bucket name
-- Check S3 bucket policy allows uploads
+- Check local `media/` folder writable
+- If using Supabase: Verify credentials and bucket name
 
 ### SMS not sending
 - Verify `ARKESEL_API_KEY` is set
@@ -305,5 +286,4 @@ python manage.py shell
 - Django Environment Setup: https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 - Render Environment: https://render.com/docs/environment-variables
 - Paystack: See [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md)
-- AWS S3: See [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
 

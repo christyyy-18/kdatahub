@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: k-datahub-api
+    name: kdatahub_postgres
     runtime: python
     plan: free
     buildCommand: ./build.sh
@@ -31,7 +31,13 @@ services:
       - key: DEFAULT_FROM_EMAIL
         value: noreply@kdataflow.com
       - key: USE_SUPABASE
-        value: "False"
+        value: "True"
+      - key: SUPABASE_URL
+        value: "https://your-project.supabase.co"
+      - key: SUPABASE_KEY
+        value: "your-service-role-secret"
+      - key: SUPABASE_STORAGE_BUCKET
+        value: "kdatahub-media"
       - fromDatabase:
           name: k-datahub-db
           property: connectionString

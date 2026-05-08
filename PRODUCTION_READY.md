@@ -139,7 +139,7 @@ K-DATAHUB
    - Support for both local and Supabase storage
 
 2. **requirements.txt**
-   - Removed: `sendgrid`, `python-http-client`, `starkbank-ecdsa`, `boto3`, `django-storages`
+   - Removed: `sendgrid`, `python-http-client`, `starkbank-ecdsa`
    - Added: `supabase==2.4.2`
 
 3. **kdatahub/storage.py** (NEW)
@@ -239,11 +239,6 @@ K-DATAHUB
 - **Developer friendly** - Great documentation
 - **Cost-effective** - $0.12/GB after free tier
 
-### ✅ Why Not AWS S3?
-- **Complex setup** - 15+ steps, requires IAM understanding
-- **More expensive** - $0.023/GB but hidden costs
-- **Overkill** - Designed for enterprise scale
-- **Learning curve** - AWS console is overwhelming
 
 ### ✅ Why Remove SendGrid?
 - **Focus** - Concentrate on SMS-only communication
@@ -274,12 +269,12 @@ K-DATAHUB
    - Quicker initialization
 
 3. **Better Scalability**
-   - S3 handles unlimited concurrent uploads
+   - Supabase handles unlimited concurrent uploads
    - No local storage bottlenecks
 
 4. **Improved Reliability**
    - Cloud storage is highly available
-   - Automatic redundancy in S3
+   - Automatic redundancy in Supabase storage
 
 ---
 
@@ -289,8 +284,7 @@ K-DATAHUB
 |---------|-----------|-------------------|----------|
 | Render (App) | No | ~$7-15 | $10 |
 | Render (PostgreSQL) | No | ~$15 | $15 |
-| AWS S3 (storage) | 5 GB | $0.023/GB | $0.01 |
-| AWS S3 (transfer) | 1 GB/mo | $0.09/GB | $0.05 |
+| Supabase (storage) | 1 GB | $0.12/GB | $0.00 |
 | Paystack | Per transaction | 1.5% + ₦100 | Varies |
 | Arkesel | Pay-as-you-go | ~₦0.50 per SMS | Varies |
 | **Total** | | | **~$25+** |
@@ -302,8 +296,8 @@ K-DATAHUB
 ```
 [ ] User can signup
 [ ] User can login
-[ ] Profile picture uploads to S3
-[ ] Profile picture loads from S3 URL
+[ ] Profile picture uploads to Supabase
+[ ] Profile picture loads from Supabase URL
 [ ] Create order with valid data
 [ ] Attempt payment with test card
 [ ] Payment succeeds → Order status = "paid"
@@ -321,13 +315,13 @@ K-DATAHUB
 
 ### Setup Guides
 - [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md) - Complete Paystack walkthrough
-- [AWS_S3_SETUP.md](AWS_S3_SETUP.md) - Complete AWS S3 walkthrough
+- [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Complete Supabase walkthrough
 - [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md) - All variables explained
 
 ### External Documentation
 - Django Docs: https://docs.djangoproject.com/en/5.0/
 - Paystack API: https://paystack.com/docs/
-- AWS S3: https://docs.aws.amazon.com/s3/
+- Supabase Docs: https://supabase.com/docs
 - Render Docs: https://render.com/docs/
 - Arkesel: https://dashboard.arkesel.com/
 
@@ -336,7 +330,7 @@ K-DATAHUB
 ## Next Immediate Steps
 
 1. **Today:** Read [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md) and start Paystack account
-2. **Tomorrow:** Complete AWS S3 setup with [AWS_S3_SETUP.md](AWS_S3_SETUP.md)
+2. **Tomorrow:** Complete Supabase setup with [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
 3. **Day 3:** Create Render account and get PostgreSQL URL
 4. **Day 4:** Configure all environment variables using [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md)
 5. **Day 5:** Deploy to Render and test with users
@@ -347,7 +341,7 @@ K-DATAHUB
 
 Latest commits:
 ```
-f6a9794 - Remove SendGrid, add AWS S3 support with setup guides
+f6a9794 - Remove SendGrid, add Supabase support with setup guides
 1404881 - Critical security fixes: .gitignore, remove .env from tracking
 5f078e4 - Complete migration and update user statuses + improve manager login alerts
 ```

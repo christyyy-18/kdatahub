@@ -157,7 +157,6 @@
      - Get Service Role Secret key
      - Set `USE_SUPABASE=True` in Render environment
    - [ ] Alternative: Cloudinary (image optimization)
-   - [ ] Alternative: AWS S3 (if you prefer)
 
 6. **[ ] Setup Paystack** - See [PAYSTACK_SETUP.md](PAYSTACK_SETUP.md)
    - [ ] Create Paystack account
@@ -245,7 +244,7 @@
 | Django Setup | ✅ Ready | 5.0.2 with proper config |
 | Database | ✅ Ready | PostgreSQL + LocalDev support |
 | Static Files | ✅ Ready | WhiteNoise configured |
-| Media Files (S3) | ✅ Ready | AWS S3 + boto3 integrated |
+| Media Files (Supabase) | ✅ Ready | Supabase + SDK integrated |
 | Media Files (Local) | ✅ Ready | Fallback for development |
 | Email | ✅ Removed | SendGrid removed, Arkesel only |
 | SMS | ✅ Ready | Arkesel with fallback |
