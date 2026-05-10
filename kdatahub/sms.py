@@ -62,7 +62,10 @@ def notify_buyer_order_placed(order):
         phone = getattr(order.buyer, 'phone_number', '') # Assuming phone_number field exists
     
     if phone:
-        message = f"Hello {order.customer_name or 'Customer'}, your order {order.order_id} for {order.item_name} (₵{order.total_amount}) has been received. We will notify you once it is delivered. Thank you!"
+        message = (
+            f"K-DATA HUB: Order {order.order_id} received for {order.item_name} (₵{order.total_amount}). "
+            f"Please complete payment to begin processing. Track here: {settings.BASE_DOMAIN}/orders/track/?ticket_id={order.order_id}"
+        )
         send_sms(phone, message)
 
 def notify_buyer_payment_success(order):
@@ -71,7 +74,14 @@ def notify_buyer_payment_success(order):
         phone = getattr(order.buyer, 'phone_number', '')
     
     if phone:
-        message = f"Payment Successful! Your order {order.order_id} ({order.item_name}) has been confirmed and is now being processed. Thank you for your payment!"
+        # This is the 'Ticket Receipt' requested by the user
+        message = (
+            f"K-DATA HUB RECEIPT: Payment Received! \n"
+            f"Ticket: {order.order_id}\n"
+            f"Package: {order.item_name}\n"
+            f"Status: Paid & Processing for delivery to {phone}. \n"
+            f"Thank you for your order!"
+        )
         send_sms(phone, message)
 
 def notify_buyer_order_delivered(order):
