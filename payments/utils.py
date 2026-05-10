@@ -11,7 +11,8 @@ def initialize_payment(order, email):
     callback_url = f'{settings.BASE_DOMAIN}/payments/verify/'
     payload = {
         'email': email,
-        'amount': int(order.total_amount * 100),  # Convert to kobo
+        'amount': int(order.total_amount * 100),  # Convert to pesewas
+        'currency': 'GHS',
         'reference': order.order_id,
         'callback_url': callback_url,
     }

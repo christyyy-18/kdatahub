@@ -133,7 +133,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-# WHITENOISE_MANIFEST_STRICT = False  # Not needed for non-manifest storage
+WHITENOISE_USE_FINDERS = True  # Allows WhiteNoise to find files in STATICFILES_DIRS without collectstatic
+WHITENOISE_MANIFEST_STRICT = False
 
 # Media files (Local)
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -176,3 +177,25 @@ MANAGER_PHONE = env('MANAGER_PHONE', default='+233594715103')
 ADMIN_PHONE = env('ADMIN_PHONE', default='0552514207')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging for Vercel Debugging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

@@ -13,8 +13,12 @@ def send_sms(phone, message):
     api_key = getattr(settings, 'ARKESEL_API_KEY', '')
     sender_id = getattr(settings, 'SMS_SENDER_ID', 'K-DATAHUB')
     
-    # Clean phone number (remove +, spaces, ensure 10-12 digits)
+    # Clean phone number and ensure Ghana country code (233)
     clean_phone = "".join(filter(str.isdigit, str(phone)))
+    if clean_phone.startswith('0'):
+        clean_phone = '233' + clean_phone[1:]
+    elif not clean_phone.startswith('233') and len(clean_phone) <= 10:
+        clean_phone = '233' + clean_phone
     
     if not api_key:
         print("\n" + "="*50)
@@ -24,23 +28,27 @@ def send_sms(phone, message):
         print("="*50 + "\n")
         return True
 
-    url = "https://sms.arkesel.com/sms/api"
-    params = {
-        "action": "send-sms",
-        "api_key": api_key,
-        "to": clean_phone,
-        "from": sender_id,
-        "sms": message
+    url = "https://sms.arkesel.com/api/v2/sms/send"
+    headers = {
+        "api-key": api_key,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+    payload = {
+        "sender": sender_id,
+        "message": message,
+        "recipients": [clean_phone]
     }
     
     try:
-        response = requests.get(url, params=params)
+        response = requests.post(url, headers=headers, json=payload)
         result = response.json()
-        if result.get('code') == '1000':
+        # Arkesel v2 success code is 200/201 in HTTP, but response body contains status
+        if result.get('status') == 'success' or response.status_code in [200, 201]:
             logger.info(f"SMS successfully sent to {clean_phone}")
             return True
         else:
-            logger.error(f"Arkesel Error: {result.get('message')}")
+            logger.error(f"Arkesel Error: {result.get('message') or result}")
             return False
     except Exception as e:
         logger.error(f"SMS Sending Failed: {str(e)}")

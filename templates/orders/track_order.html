@@ -185,11 +185,19 @@
                 </div>
                 <div class="summary-row">
                     <label>Customer Name:</label>
-                    <span>{{ order.customer_name|default:order.buyer.username|default:"Guest" }}</span>
+                    <span>
+                        {% if order.customer_name %}{{ order.customer_name }}
+                        {% elif order.buyer %}{{ order.buyer.username }}
+                        {% else %}Guest{% endif %}
+                    </span>
                 </div>
                 <div class="summary-row">
                     <label>Customer Email:</label>
-                    <span>{{ order.customer_email|default:order.buyer.email|default:"N/A" }}</span>
+                    <span>
+                        {% if order.customer_email %}{{ order.customer_email }}
+                        {% elif order.buyer %}{{ order.buyer.email }}
+                        {% else %}N/A{% endif %}
+                    </span>
                 </div>
                 <div class="summary-row">
                     <label>Customer Phone:</label>
@@ -203,19 +211,19 @@
 
             <div class="timeline">
                 <!-- Progress bar overlay -->
-                <div class="timeline-progress" style="width: {% if order.status == 'placed' %}0%{% elif order.status == 'pending' %}50%{% elif order.status == 'delivered' %}100%{% else %}0%{% endif %};"></div>
+                <div class="timeline-progress" style="width: {% if order.status == 'pending' %}0%{% elif order.status == 'paid' or order.status == 'processing' %}50%{% elif order.status == 'completed' %}100%{% else %}0%{% endif %};"></div>
 
-                <div class="timeline-step {% if order.status == 'placed' %}active{% elif order.status == 'pending' or order.status == 'delivered' %}completed{% endif %}">
-                    <div class="step-circle">{% if order.status == 'pending' or order.status == 'delivered' %}✓{% else %}1{% endif %}</div>
+                <div class="timeline-step {% if order.status == 'pending' %}active{% else %}completed{% endif %}">
+                    <div class="step-circle">{% if order.status != 'pending' %}✓{% else %}1{% endif %}</div>
                     <span class="step-label">Placed</span>
                 </div>
 
-                <div class="timeline-step {% if order.status == 'pending' %}active{% elif order.status == 'delivered' %}completed{% endif %}">
-                    <div class="step-circle">{% if order.status == 'delivered' %}✓{% else %}2{% endif %}</div>
-                    <span class="step-label">Pending</span>
+                <div class="timeline-step {% if order.status == 'paid' or order.status == 'processing' %}active{% elif order.status == 'completed' %}completed{% endif %}">
+                    <div class="step-circle">{% if order.status == 'completed' %}✓{% else %}2{% endif %}</div>
+                    <span class="step-label">Paid & Processing</span>
                 </div>
 
-                <div class="timeline-step {% if order.status == 'delivered' %}active completed{% endif %}">
+                <div class="timeline-step {% if order.status == 'completed' %}active completed{% endif %}">
                     <div class="step-circle">3</div>
                     <span class="step-label">Delivered</span>
                 </div>
