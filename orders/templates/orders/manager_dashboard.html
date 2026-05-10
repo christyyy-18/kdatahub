@@ -82,23 +82,33 @@
                 <thead>
                     <tr>
                         <th>Order ID</th>
-                        <th>Buyer</th>
+                        <th>Customer</th>
+                        <th>Phone</th>
+                        <th>Package</th>
                         <th>Status</th>
                         <th>Total</th>
-                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in recent_orders %}
                         <tr>
                             <td>{{ order.order_id }}</td>
-                            <td>{{ order.buyer.username }}</td>
-                            <td>{{ order.get_status_display }}</td>
+                            <td>
+                                {% if order.customer_name %}{{ order.customer_name }}
+                                {% elif order.buyer %}{{ order.buyer.username }}
+                                {% else %}Guest{% endif %}
+                            </td>
+                            <td>{{ order.customer_phone|default:"-" }}</td>
+                            <td>{{ order.item_name }}</td>
+                            <td>
+                                <span class="status-badge status-{{ order.status }}" style="padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; background: {% if order.status == 'pending' %}#fef3c7; color: #92400e;{% elif order.status == 'paid' %}#dbeafe; color: #1e40af;{% elif order.status == 'completed' %}#d1fae5; color: #065f46;{% else %}#f1f5f9; color: #475569;{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
                             <td>₵{{ order.total_amount }}</td>
-                            <td>{{ order.created_at|date:'M d, Y' }}</td>
                         </tr>
                     {% empty %}
-                        <tr><td colspan="5">No recent orders yet.</td></tr>
+                        <tr><td colspan="6">No recent orders yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

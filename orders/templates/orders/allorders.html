@@ -22,9 +22,14 @@
 {% for order in orders %}
 <div class="card">
     <h3>Order #{{ order.order_id }}</h3>
-    <p><strong>Buyer:</strong> {{ order.buyer.username }} ({{ order.buyer.email }})</p>
+    <p><strong>Customer:</strong> 
+        {% if order.customer_name %}{{ order.customer_name }}
+        {% elif order.buyer %}{{ order.buyer.username }}
+        {% else %}Guest{% endif %}
+    </p>
+    <p><strong>Contact:</strong> {{ order.customer_phone|default:order.buyer.phone_number|default:"-" }} ({{ order.customer_email|default:order.buyer.email|default:"-" }})</p>
     <p><strong>Item:</strong> {{ order.item_name }} x {{ order.quantity }}</p>
-    <p><strong>Total:</strong> ₦{{ order.total_amount }}</p>
+    <p><strong>Total:</strong> ₵{{ order.total_amount }}</p>
     <p><strong>Status:</strong>
         <span class="status-badge status-{{ order.status }}">
             {{ order.get_status_display }}
