@@ -132,9 +132,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 WHITENOISE_USE_FINDERS = True  # Allows WhiteNoise to find files in STATICFILES_DIRS without collectstatic
 WHITENOISE_MANIFEST_STRICT = False
+WHITENOISE_AUTOREFRESH = True # Helps in serverless environments where build/run states differ
 
 # Media files (Local)
 MEDIA_ROOT = BASE_DIR / 'media'

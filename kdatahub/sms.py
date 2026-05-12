@@ -43,15 +43,16 @@ def send_sms(phone, message):
     try:
         response = requests.post(url, headers=headers, json=payload)
         result = response.json()
-        # Arkesel v2 success code is 200/201 in HTTP, but response body contains status
+        logger.info(f"Arkesel Response for {clean_phone}: {result}")
+        
         if result.get('status') == 'success' or response.status_code in [200, 201]:
             logger.info(f"SMS successfully sent to {clean_phone}")
             return True
         else:
-            logger.error(f"Arkesel Error: {result.get('message') or result}")
+            logger.error(f"Arkesel Error for {clean_phone}: {result.get('message') or result}")
             return False
     except Exception as e:
-        logger.error(f"SMS Sending Failed: {str(e)}")
+        logger.error(f"SMS Sending Failed for {clean_phone}: {str(e)}")
         return False
 
 # --- Helper Functions for Specific Scenarios ---
