@@ -27,13 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-your-secret-key-here')
 DEBUG = env.bool('DEBUG', default=False)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.onrender.com', '.vercel.app'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.vercel.app', '.firebaseapp.com', '.web.app'])
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
-    'https://*.onrender.com',
     'https://*.vercel.app',
+    'https://*.firebaseapp.com',
+    'https://*.web.app',
 ]
 
 
@@ -145,17 +146,30 @@ if not PAYSTACK_SECRET_KEY or not PAYSTACK_PUBLIC_KEY:
     import warnings
     warnings.warn('⚠️ Paystack keys not configured. Payment functionality will be disabled.')
 
-# Supabase Storage Configuration for Media Files
-USE_SUPABASE = env.bool('USE_SUPABASE', default=False)
-if USE_SUPABASE:
-    # Supabase Storage
-    SUPABASE_URL = env('SUPABASE_URL', default='')
-    SUPABASE_KEY = env('SUPABASE_KEY', default='')
-    SUPABASE_STORAGE_BUCKET = env('SUPABASE_STORAGE_BUCKET', default='kdatahub-media')
+# Firebase Storage (Google Cloud Storage) Configuration for Media Files
+USE_FIREBASE_STORAGE = env.bool('USE_FIREBASE_STORAGE', default=False)
+if USE_FIREBASE_STORAGE:
+    # Firebase Storage (GCS) Settings
+    GS_BUCKET_NAME = env('GS_BUCKET_NAME', default='')
     
-    # Supabase Media Settings
-    MEDIA_URL = f'{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_STORAGE_BUCKET}/'
-    DEFAULT_FILE_STORAGE = 'kdatahub.storage.SupabaseStorage'
+    # Credentials can be passed as a JSON string in environment variables
+    GS_CREDENTIALS_JSON = env('GS_CREDENTIALS', default='')
+    if GS_CREDENTIALS_JSON:
+        import json
+        from google.oauth2 import service_account
+        try:
+            creds_dict = json.loads(GS_CREDENTIALS_JSON)
+            GS_CREDENTIALS = service_account.Credentials.from_service_account_info(creds_dict)
+        except Exception as e:
+            import warnings
+            warnings.warn(f"⚠️ Failed to parse GS_CREDENTIALS JSON: {e}")
+            GS_CREDENTIALS = None
+            
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_QUERYSTRING_AUTH = False  # Set to False for public URLs
+    
+    # Media files public URL base
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 else:
     # Local Media Storage (Development/Testing)
     MEDIA_URL = '/media/'
