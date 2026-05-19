@@ -1,6 +1,12 @@
 {
-  "buildCommand": "bash build_files.sh",
   "builds": [
+    {
+      "src": "build_files.sh",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "staticfiles_build"
+      }
+    },
     {
       "src": "kdatahub/wsgi.py",
       "use": "@vercel/python",
@@ -13,7 +19,31 @@
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "staticfiles/$1"
+      "dest": "staticfiles_build/static/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=86400, immutable"
+      }
+    },
+    {
+      "src": "/img/(.*)",
+      "dest": "staticfiles_build/static/img/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "staticfiles_build/static/css/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=86400, immutable"
+      }
+    },
+    {
+      "src": "/js/(.*)",
+      "dest": "staticfiles_build/static/js/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=86400, immutable"
+      }
     },
     {
       "src": "/(.*)",
