@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-your-secret-key-here')
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG = env.bool('DEBUG', default=True)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.vercel.app', '.firebaseapp.com', '.web.app'])
 
 CSRF_TRUSTED_ORIGINS = [
@@ -56,6 +56,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -133,11 +134,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Use WhiteNoise only in development, NOT in production
-if DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-else:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+# Unified staticfiles storage is configured in the STORAGES block below
 
 WHITENOISE_AUTOREFRESH = DEBUG
 
@@ -171,7 +168,6 @@ if USE_FIREBASE_STORAGE:
             warnings.warn(f"⚠️ Failed to parse GS_CREDENTIALS JSON: {e}")
             GS_CREDENTIALS = None
             
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_QUERYSTRING_AUTH = False  # Set to False for public URLs
     
     # Media files public URL base
@@ -179,7 +175,16 @@ if USE_FIREBASE_STORAGE:
 else:
     # Local Media Storage (Development/Testing)
     MEDIA_URL = '/media/'
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+# Unified Storages Configuration for Django 6.0 compatibility
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage" if USE_FIREBASE_STORAGE else "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage" if DEBUG else "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Base Domain for Callbacks
 BASE_DOMAIN = env('BASE_DOMAIN', default='http://localhost:8000')
