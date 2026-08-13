@@ -1,49 +1,29 @@
 {
+  "version": 2,
   "builds": [
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "staticfiles_build"
-      }
-    },
     {
       "src": "kdatahub/wsgi.py",
       "use": "@vercel/python",
-      "config": { 
-        "maxLambdaSize": "15mb", 
-        "runtime": "python3.12"
-      }
+      "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+    },
+    {
+      "src": "build_files.sh",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "staticfiles_build" }
     }
   ],
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "staticfiles_build/static/$1",
-      "headers": {
-        "Cache-Control": "public, max-age=86400, immutable"
-      }
+      "dest": "/static/$1"
     },
     {
-      "src": "/img/(.*)",
-      "dest": "staticfiles_build/static/img/$1",
-      "headers": {
-        "Cache-Control": "public, max-age=86400"
-      }
+      "src": "/favicon.ico",
+      "dest": "/static/img/favicon.ico"
     },
     {
-      "src": "/css/(.*)",
-      "dest": "staticfiles_build/static/css/$1",
-      "headers": {
-        "Cache-Control": "public, max-age=86400, immutable"
-      }
-    },
-    {
-      "src": "/js/(.*)",
-      "dest": "staticfiles_build/static/js/$1",
-      "headers": {
-        "Cache-Control": "public, max-age=86400, immutable"
-      }
+      "src": "/favicon.png",
+      "dest": "/static/img/favicon.png"
     },
     {
       "src": "/(.*)",

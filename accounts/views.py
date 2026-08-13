@@ -16,60 +16,26 @@ from kdatahub.sms import (
 )
 
 def become_agent_view(request):
-    if request.method == 'POST':
-        form = AgentSignupForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Create user
-            user = form.save()
-            
-            # Temporary bypass: grant agent status immediately
-            user.is_agent = True
-            user.save()
-            
-            # Log the user in
-            login(request, user)
-            
-            # Trigger SMS
-            notify_agent_welcome(user)
-            notify_manager_agent_signup(user)
-            
-            messages.success(request, 'Agent registration successful! You are now an active agent (Fee temporarily bypassed).')
-            return redirect('home')
-    else:
-        form = AgentSignupForm()
-    return render(request, 'accounts/become_agent.html', {'form': form})
+    messages.info(request, 'Agent registration is disabled. You do not need to create an account to place orders. Simply click "Place Order"!')
+    return redirect('home')
 
 def signup_view(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Account created successfully!')
-            return redirect('home')
-        else:
-            print(f"DEBUG: Signup failed. Errors: {form.errors}")
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'accounts/signup.html', {'form': form})
+    messages.info(request, 'Registration is disabled. You do not need to create an account to place orders. Simply click "Place Order"!')
+    return redirect('home')
 
 def login_view(request):
     if request.method == 'POST':
         from django.db import connection
-        print(f"DEBUG: Login attempt for user: {request.POST.get('username')}")
-        print(f"DEBUG: DB in use: {connection.vendor}")
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            print(f"DEBUG: Form valid! User found: {user.username}, Is Staff: {user.is_staff}")
+            if not user.is_manager:
+                messages.error(request, 'Access Denied: Only managers can log in.')
+                return redirect('accounts:login')
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
-            if user.is_manager:
-                notify_manager_login(user)
-                return redirect('orders:manager_dashboard')
-            return redirect('home')
-        else:
-            print(f"DEBUG: Form invalid! Errors: {form.errors}")
+            notify_manager_login(user)
+            return redirect('orders:manager_dashboard')
     else:
         form = CustomAuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})

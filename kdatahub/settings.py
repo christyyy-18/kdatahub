@@ -133,13 +133,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Use WhiteNoise only in development, NOT in production
 if DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
-WHITENOISE_AUTOREFRESH = DEBUG
 
 
 # Media files (Local)
