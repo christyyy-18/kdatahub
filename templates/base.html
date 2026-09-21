@@ -37,7 +37,6 @@
                     <li><a href="{% url 'accounts:logout' %}" class="logout-link">Logout</a></li>
                 {% else %}
                     <li><a href="{% url 'accounts:login' %}" class="{% if '/accounts/login/' in request.path %}active{% endif %}">Login</a></li>
-                    <li><a href="{% url 'accounts:signup' %}" class="{% if '/accounts/signup/' in request.path %}active{% endif %}">Sign Up</a></li>
                 {% endif %}
                 {% if not user.is_agent %}
                     <li><a href="{% url 'accounts:become_agent' %}" class="{% if 'become-agent' in request.path %}active{% endif %}">Become Agent</a></li>
