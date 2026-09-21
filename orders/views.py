@@ -1,14 +1,20 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.utils import timezone
 from django.db import models
 from django.http import HttpResponse, JsonResponse
 from django.core.paginator import Paginator
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import Order
+from . import catalog
 from payments.utils import initialize_payment
 import csv
+import re
 from django.utils.dateparse import parse_date
+from kdatahub.throttle import is_rate_limited
 from kdatahub.sms import (
     notify_buyer_order_placed, 
     notify_manager_new_order, 
@@ -19,58 +25,118 @@ from kdatahub.sms import (
 def is_manager(user):
     return user.is_authenticated and user.is_manager
 
-def create_order(request):
-    if request.method == 'POST':
-        # Traffic detection: Check if more than 5 orders in the last 5 minutes
-        five_mins_ago = timezone.now() - timezone.timedelta(minutes=5)
-        recent_count = Order.objects.filter(created_at__gte=five_mins_ago).count()
-        if recent_count >= 5:
-            notify_admin_traffic(f"High traffic detected! {recent_count} orders in the last 5 minutes.")
 
-        item_name = request.POST.get('item_name')
-        customer_name = request.POST.get('customer_name')
-        customer_email = request.POST.get('customer_email')
-        customer_phone = request.POST.get('customer_phone')
-        
-        try:
-            quantity = int(request.POST.get('quantity', 1))
-            unit_price = float(request.POST.get('unit_price', 0))
-        except (ValueError, TypeError):
-            messages.error(request, 'Invalid quantity or unit price.')
-            return render(request, 'orders/create_order.html')
-        
-        if not item_name or quantity < 1 or unit_price <= 0 or not customer_email or not customer_phone:
-            messages.error(request, 'Please provide all required valid order details.')
-            return render(request, 'orders/create_order.html')
-        
-        buyer = request.user if request.user.is_authenticated else None
-        
-        order = Order.objects.create(
-            buyer=buyer,
-            customer_name=customer_name,
-            customer_email=customer_email,
-            customer_phone=customer_phone,
-            item_name=item_name,
-            quantity=quantity,
-            unit_price=unit_price,
-            status='pending'
+# Ghana mobile numbers: 10 digits starting 0, or the same with a 233 prefix.
+PHONE_RE = re.compile(r'^(?:0\d{9}|(?:\+?233)\d{9})$')
+
+
+def _order_form_context(request, selected_key=None, form_data=None):
+    """Everything create_order.html needs, for both GET and any error re-render."""
+    is_agent = getattr(request.user, 'is_agent', False)
+    if selected_key is not None and not catalog.is_valid_package(selected_key):
+        selected_key = None
+    selected_price = (
+        catalog.get_price(selected_key, is_agent=is_agent) if selected_key else None
+    )
+    return {
+        'catalog': catalog.catalog_for(is_agent=is_agent),
+        'price_map': catalog.price_map(is_agent=is_agent),
+        'selected_key': selected_key,
+        'selected_price': selected_price,
+        'max_quantity': catalog.MAX_QUANTITY,
+        'form_data': form_data or {},
+    }
+
+
+def create_order(request):
+    if request.method != 'POST':
+        # A price box on the home page links here with ?package=10GB MTN so the
+        # plan the customer picked arrives already selected. An unrecognised
+        # value is simply ignored.
+        context = _order_form_context(request, selected_key=request.GET.get('package'))
+        return render(request, 'orders/create_order.html', context)
+
+    item_name = (request.POST.get('item_name') or '').strip()
+    customer_name = (request.POST.get('customer_name') or '').strip()
+    customer_email = (request.POST.get('customer_email') or '').strip()
+    customer_phone = (request.POST.get('customer_phone') or '').strip()
+    form_data = {
+        'customer_name': customer_name,
+        'customer_email': customer_email,
+        'customer_phone': customer_phone,
+    }
+
+    def reject(message):
+        messages.error(request, message)
+        return render(
+            request,
+            'orders/create_order.html',
+            _order_form_context(request, selected_key=item_name, form_data=form_data),
         )
-        
-        # Trigger SMS Notifications
-        notify_buyer_order_placed(order)
-        notify_manager_new_order(order)
-        
-        payment_response = initialize_payment(order, customer_email)
-        
-        if payment_response and payment_response.get('status'):
-            order.paystack_reference = payment_response['data']['reference']
-            order.save()
-            return redirect(payment_response['data']['authorization_url'])
-        else:
-            messages.error(request, 'Payment initialization failed. Please try again.')
-            return redirect('orders:create_order')
-    
-    return render(request, 'orders/create_order.html')
+
+    if is_rate_limited(request, 'create_order', limit=5, window_seconds=300):
+        return reject('Too many orders from this device. Please wait a few minutes and try again.')
+
+    # The price is looked up here, never read from the request. The form has no
+    # price field at all: a buyer cannot choose what they pay.
+    is_agent = getattr(request.user, 'is_agent', False)
+    unit_price = catalog.get_price(item_name, is_agent=is_agent)
+    if unit_price is None:
+        return reject('Please choose a data package from the list.')
+
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+    except (ValueError, TypeError):
+        return reject('Please enter a valid quantity.')
+    if quantity < 1 or quantity > catalog.MAX_QUANTITY:
+        return reject(f'Quantity must be between 1 and {catalog.MAX_QUANTITY}.')
+
+    if not customer_email:
+        return reject('Please provide an email address for your receipt.')
+    try:
+        validate_email(customer_email)
+    except ValidationError:
+        return reject('Please provide a valid email address.')
+
+    if not PHONE_RE.match(customer_phone.replace(' ', '')):
+        return reject('Please provide a valid Ghana phone number, e.g. 0241234567.')
+
+    if not customer_name:
+        return reject('Please provide your full name.')
+
+    # Traffic detection: Check if more than 5 orders in the last 5 minutes
+    five_mins_ago = timezone.now() - timezone.timedelta(minutes=5)
+    recent_count = Order.objects.filter(created_at__gte=five_mins_ago).count()
+    if recent_count >= 5:
+        notify_admin_traffic(f"High traffic detected! {recent_count} orders in the last 5 minutes.")
+
+    buyer = request.user if request.user.is_authenticated else None
+
+    order = Order.objects.create(
+        buyer=buyer,
+        customer_name=customer_name,
+        customer_email=customer_email,
+        customer_phone=customer_phone,
+        item_name=item_name,
+        quantity=quantity,
+        unit_price=unit_price,
+        status='pending'
+    )
+
+    # Trigger SMS Notifications
+    notify_buyer_order_placed(order)
+    notify_manager_new_order(order)
+
+    payment_response = initialize_payment(order, customer_email)
+
+    if payment_response and payment_response.get('status'):
+        order.paystack_reference = payment_response['data']['reference']
+        order.save()
+        return redirect(payment_response['data']['authorization_url'])
+
+    messages.error(request, 'Payment initialization failed. Please try again.')
+    return redirect('orders:create_order')
+
 
 @login_required
 def my_orders(request):
@@ -82,13 +148,21 @@ def my_orders(request):
     
     return render(request, 'orders/my_orders.html', {'orders': page_obj})
 
+def _may_view_order(user, order):
+    """Guest orders have no buyer, so only a manager may open them."""
+    if user.is_manager:
+        return True
+    return order.buyer is not None and order.buyer == user
+
+
 @login_required
 def order_detail(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
-    
-    if order.buyer and order.buyer != request.user and not request.user.is_manager:
+
+    if not _may_view_order(request.user, order):
+        messages.error(request, 'Permission denied.')
         return redirect('orders:my_orders')
-    
+
     return render(request, 'orders/order_detail.html', {'order': order})
 
 @user_passes_test(is_manager)
@@ -196,7 +270,12 @@ def update_order_status(request, order_id):
         else:
             messages.error(request, 'Invalid status')
     
-    return redirect(request.META.get('HTTP_REFERER', 'orders:manager_dashboard'))
+    referer = request.META.get('HTTP_REFERER')
+    if referer and url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(referer)
+    return redirect('orders:manager_dashboard')
 
 @login_required
 def cancel_order(request, order_id):
@@ -215,9 +294,8 @@ def cancel_order(request, order_id):
 @login_required
 def download_invoice(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
-    
-    # Security check
-    if order.buyer != request.user and not request.user.is_manager:
+
+    if not _may_view_order(request.user, order):
         messages.error(request, 'Permission denied')
         return redirect('orders:my_orders')
     
@@ -230,12 +308,12 @@ def download_invoice(request, order_id):
     writer.writerow([])
     writer.writerow(['Order ID:', order.order_id])
     writer.writerow(['Date:', order.created_at.strftime('%Y-%m-%d %H:%M:%S')])
-    writer.writerow(['Buyer:', order.buyer.username])
-    writer.writerow(['Email:', order.buyer.email])
+    writer.writerow(['Buyer:', order.buyer.username if order.buyer else (order.customer_name or 'Guest')])
+    writer.writerow(['Email:', order.buyer.email if order.buyer else (order.customer_email or '')])
     writer.writerow(['Item:', order.item_name])
     writer.writerow(['Quantity:', order.quantity])
-    writer.writerow(['Unit Price:', f'₦{order.unit_price}'])
-    writer.writerow(['Total Amount:', f'₦{order.total_amount}'])
+    writer.writerow(['Unit Price:', f'GHS {order.unit_price}'])
+    writer.writerow(['Total Amount:', f'GHS {order.total_amount}'])
     writer.writerow(['Status:', order.get_status_display()])
     writer.writerow(['Paystack Reference:', order.paystack_reference or 'N/A'])
     
@@ -268,8 +346,8 @@ def export_orders(request):
     for order in orders:
         writer.writerow([
             order.order_id,
-            order.buyer.username,
-            order.buyer.email,
+            order.buyer.username if order.buyer else (order.customer_name or 'Guest'),
+            order.buyer.email if order.buyer else (order.customer_email or ''),
             order.item_name,
             order.quantity,
             order.unit_price,
@@ -281,9 +359,24 @@ def export_orders(request):
     
     return response
 def track_order(request):
-    query = request.GET.get('ticket_id', '')
+    query = request.GET.get('ticket_id', '').strip()
     order = None
+
     if query:
+        if is_rate_limited(request, 'track_order', limit=15, window_seconds=300):
+            messages.error(request, 'Too many lookups. Please wait a few minutes and try again.')
+            return render(request, 'orders/track_order.html', {'order': None, 'query': query})
         order = Order.objects.filter(order_id__iexact=query).first()
-    return render(request, 'orders/track_order.html', {'order': order, 'query': query})
+
+    return render(request, 'orders/track_order.html', {
+        'order': order,
+        'query': query,
+        # Anyone holding an order ID can reach this page, so the contact
+        # details are masked unless it is the buyer's own order.
+        'show_full_contact': bool(
+            order
+            and request.user.is_authenticated
+            and (request.user.is_manager or order.buyer == request.user)
+        ),
+    })
 

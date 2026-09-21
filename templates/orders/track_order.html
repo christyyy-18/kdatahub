@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static masking %}
 
 {% block title %}Track Order - K-DATA HUB{% endblock %}
 
@@ -186,22 +186,26 @@
                 <div class="summary-row">
                     <label>Customer Name:</label>
                     <span>
-                        {% if order.customer_name %}{{ order.customer_name }}
-                        {% elif order.buyer %}{{ order.buyer.username }}
-                        {% else %}Guest{% endif %}
+                        {% firstof order.customer_name order.buyer.username "Guest" as name %}
+                        {% if show_full_contact %}{{ name }}{% else %}{{ name|first_name_only }}{% endif %}
                     </span>
                 </div>
                 <div class="summary-row">
                     <label>Customer Email:</label>
                     <span>
-                        {% if order.customer_email %}{{ order.customer_email }}
-                        {% elif order.buyer %}{{ order.buyer.email }}
-                        {% else %}N/A{% endif %}
+                        {% firstof order.customer_email order.buyer.email as email %}
+                        {% if not email %}N/A
+                        {% elif show_full_contact %}{{ email }}
+                        {% else %}{{ email|mask_email }}{% endif %}
                     </span>
                 </div>
                 <div class="summary-row">
                     <label>Customer Phone:</label>
-                    <span>{{ order.customer_phone|default:"N/A" }}</span>
+                    <span>
+                        {% if not order.customer_phone %}N/A
+                        {% elif show_full_contact %}{{ order.customer_phone }}
+                        {% else %}{{ order.customer_phone|mask_phone }}{% endif %}
+                    </span>
                 </div>
                 <div class="summary-row">
                     <label>Amount Paid:</label>

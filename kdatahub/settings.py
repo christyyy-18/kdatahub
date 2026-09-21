@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+
 import environ
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 """
 Django settings for kdatahub project.
@@ -25,17 +27,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-your-secret-key-here')
 DEBUG = env.bool('DEBUG', default=False)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.vercel.app', '.firebaseapp.com', '.web.app'])
 
+# In production the key must come from the environment. Falling back to a
+# placeholder would let anyone who has read this file forge session cookies
+# and password-reset tokens.
+SECRET_KEY = env('SECRET_KEY', default='')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-local-development-only'
+    else:
+        raise ImproperlyConfigured(
+            'SECRET_KEY environment variable is required when DEBUG is off.'
+        )
+
+# Exact hosts only. Wildcards like *.vercel.app cover a namespace anyone can
+# deploy into, which would make any stranger's site a trusted origin here.
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'https://*.vercel.app',
-    'https://*.firebaseapp.com',
-    'https://*.web.app',
+    f'https://{host}' for host in ALLOWED_HOSTS if not host.startswith('.')
 ]
+
+if DEBUG:
+    ALLOWED_HOSTS += ['localhost', '127.0.0.1']
+    CSRF_TRUSTED_ORIGINS += ['http://localhost:8000', 'http://127.0.0.1:8000']
+elif not ALLOWED_HOSTS:
+    raise ImproperlyConfigured(
+        'ALLOWED_HOSTS environment variable is required when DEBUG is off, '
+        'e.g. ALLOWED_HOSTS=k-datahub.vercel.app'
+    )
 
 
 # Application definition
@@ -100,10 +120,6 @@ else:
         }
     }
 
-# Custom User Model
-AUTH_USER_MODEL = 'accounts.CustomUser'
-
-
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -133,10 +149,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-if DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-else:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+_static_backend = (
+    'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
+    else 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+)
 
 
 # Media files (Local)
@@ -168,15 +184,22 @@ if USE_FIREBASE_STORAGE:
             warnings.warn(f"⚠️ Failed to parse GS_CREDENTIALS JSON: {e}")
             GS_CREDENTIALS = None
             
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    _media_backend = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_QUERYSTRING_AUTH = False  # Set to False for public URLs
-    
+
     # Media files public URL base
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
 else:
     # Local Media Storage (Development/Testing)
     MEDIA_URL = '/media/'
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    _media_backend = 'django.core.files.storage.FileSystemStorage'
+
+# Django 5.1 removed STATICFILES_STORAGE / DEFAULT_FILE_STORAGE; on 6.0 they are
+# silently ignored, so both backends have to be declared here to take effect.
+STORAGES = {
+    'default': {'BACKEND': _media_backend},
+    'staticfiles': {'BACKEND': _static_backend},
+}
 
 # Base Domain for Callbacks
 BASE_DOMAIN = env('BASE_DOMAIN', default='http://localhost:8000')
@@ -189,10 +212,45 @@ LOGOUT_REDIRECT_URL = 'home'
 # SMS Configuration
 ARKESEL_API_KEY = env('ARKESEL_API_KEY', default='')
 SMS_SENDER_ID = env('SMS_SENDER_ID', default='K-DATAHUB')
-MANAGER_PHONE = env('MANAGER_PHONE', default='+233594715103')
-ADMIN_PHONE = env('ADMIN_PHONE', default='0552514207')
+MANAGER_PHONE = env('MANAGER_PHONE', default='')
+ADMIN_PHONE = env('ADMIN_PHONE', default='')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Security headers and cookie flags.
+# Vercel terminates TLS and forwards the original scheme in this header;
+# without it Django sees plain HTTP and SECURE_SSL_REDIRECT would loop.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = 'same-origin'
+X_FRAME_OPTIONS = 'DENY'
+
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# Shared cache, used by kdatahub.throttle for rate limiting. It has to be
+# shared rather than per-process: on Vercel each request may hit a different
+# instance, and a per-process counter would never trip.
+# Run `python manage.py createcachetable` after deploying.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'kdatahub_cache',
+    }
+} if env('DATABASE_URL', default='') else {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 
 # Logging for Vercel Debugging
 LOGGING = {

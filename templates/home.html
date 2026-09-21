@@ -54,67 +54,21 @@
     </div>
 
     <div class="pricelist-grid">
-        <div class="carrier-card carrier-mtn">
+        {% for group in catalog %}
+        <div class="carrier-card carrier-{{ group.css_class }}">
             <div class="carrier-title">
-                <span>MTN</span>
+                <span>{{ group.label }}</span>
             </div>
             <div class="price-boxes">
-                <div class="price-box"><div class="box-data">1 GB</div><div class="box-price">GHC 6</div></div>
-                <div class="price-box"><div class="box-data">2 GB</div><div class="box-price">GHC 12</div></div>
-                <div class="price-box"><div class="box-data">3 GB</div><div class="box-price">GHC 18</div></div>
-                <div class="price-box"><div class="box-data">4 GB</div><div class="box-price">GHC 23</div></div>
-                <div class="price-box"><div class="box-data">5 GB</div><div class="box-price">GHC 28</div></div>
-                <div class="price-box"><div class="box-data">6 GB</div><div class="box-price">GHC 33</div></div>
-                <div class="price-box"><div class="box-data">8 GB</div><div class="box-price">GHC 43</div></div>
-                <div class="price-box"><div class="box-data">10 GB</div><div class="box-price">GHC 50</div></div>
-                <div class="price-box"><div class="box-data">12 GB</div><div class="box-price">GHC 60</div></div>
-                <div class="price-box"><div class="box-data">15 GB</div><div class="box-price">GHC 75</div></div>
-                <div class="price-box"><div class="box-data">20 GB</div><div class="box-price">GHC 96</div></div>
-                <div class="price-box"><div class="box-data">25 GB</div><div class="box-price">GHC 116</div></div>
-                <div class="price-box"><div class="box-data">30 GB</div><div class="box-price">GHC 137</div></div>
-                <div class="price-box"><div class="box-data">40 GB</div><div class="box-price">GHC 180</div></div>
-                <div class="price-box"><div class="box-data">50 GB</div><div class="box-price">GHC 215</div></div>
-                <div class="price-box"><div class="box-data">100 GB</div><div class="box-price">GHC 420</div></div>
+                {% for package in group.packages %}
+                <a class="price-box" href="{% url 'orders:create_order' %}?package={{ package.key|urlencode }}" aria-label="Order {{ package.key }} for GHC {{ package.price }}">
+                    <span class="box-data">{{ package.volume_label }}</span>
+                    <span class="box-price">GHC {{ package.price|floatformat:"-2" }}</span>
+                </a>
+                {% endfor %}
             </div>
         </div>
-
-        <div class="carrier-card carrier-airtel">
-            <div class="carrier-title">
-                <span>Airtel / AT</span>
-            </div>
-            <div class="price-boxes">
-                <div class="price-box"><div class="box-data">2 GB</div><div class="box-price">GHC 10</div></div>
-                <div class="price-box"><div class="box-data">3 GB</div><div class="box-price">GHC 15</div></div>
-                <div class="price-box"><div class="box-data">4 GB</div><div class="box-price">GHC 18</div></div>
-                <div class="price-box"><div class="box-data">5 GB</div><div class="box-price">GHC 23</div></div>
-                <div class="price-box"><div class="box-data">6 GB</div><div class="box-price">GHC 28</div></div>
-                <div class="price-box"><div class="box-data">8 GB</div><div class="box-price">GHC 35</div></div>
-                <div class="price-box"><div class="box-data">10 GB</div><div class="box-price">GHC 45</div></div>
-                <div class="price-box"><div class="box-data">12 GB</div><div class="box-price">GHC 50</div></div>
-                <div class="price-box"><div class="box-data">15 GB</div><div class="box-price">GHC 65</div></div>
-                <div class="price-box"><div class="box-data">20 GB</div><div class="box-price">GHC 80</div></div>
-                <div class="price-box"><div class="box-data">30 GB</div><div class="box-price">GHC 95</div></div>
-                <div class="price-box"><div class="box-data">40 GB</div><div class="box-price">GHC 105</div></div>
-                <div class="price-box"><div class="box-data">50 GB</div><div class="box-price">GHC 120</div></div>
-                <div class="price-box"><div class="box-data">80 GB</div><div class="box-price">GHC 165</div></div>
-                <div class="price-box"><div class="box-data">100 GB</div><div class="box-price">GHC 195</div></div>
-                <div class="price-box"><div class="box-data">200 GB</div><div class="box-price">GHC 350</div></div>
-            </div>
-        </div>
-
-        <div class="carrier-card carrier-telecel">
-            <div class="carrier-title">
-                <span>Telecel</span>
-            </div>
-            <div class="price-boxes">
-                <div class="price-box"><div class="box-data">5 GB</div><div class="box-price">GHC 26</div></div>
-                <div class="price-box"><div class="box-data">10 GB</div><div class="box-price">GHC 47</div></div>
-                <div class="price-box"><div class="box-data">15 GB</div><div class="box-price">GHC 70</div></div>
-                <div class="price-box"><div class="box-data">20 GB</div><div class="box-price">GHC 90</div></div>
-                <div class="price-box"><div class="box-data">30 GB</div><div class="box-price">GHC 135</div></div>
-                <div class="price-box"><div class="box-data">40 GB</div><div class="box-price">GHC 180</div></div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 
     <div class="price-notes">

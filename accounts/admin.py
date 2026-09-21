@@ -22,9 +22,9 @@ class AgentRequestAdmin(admin.ModelAdmin):
     def approve_requests(self, request, queryset):
         queryset.update(status='approved')
         for agent_req in queryset:
-            agent_req.user.is_manager = True
-            agent_req.user.save()
-    approve_requests.short_description = "Approve selected requests and make users managers"
+            agent_req.user.is_agent = True
+            agent_req.user.save(update_fields=['is_agent'])
+    approve_requests.short_description = "Approve selected requests and make users agents"
 
     def reject_requests(self, request, queryset):
         queryset.update(status='rejected')

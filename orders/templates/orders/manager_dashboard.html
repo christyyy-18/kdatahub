@@ -242,15 +242,17 @@ tr:hover td {
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ last_7_days_labels|json_script:"chart-labels" }}
+{{ last_7_days_revenue|json_script:"chart-revenue" }}
 <script>
     const revCtx = document.getElementById('revenueChart').getContext('2d');
     new Chart(revCtx, {
         type: 'bar',
         data: {
-            labels: {{ last_7_days_labels|safe }},
+            labels: JSON.parse(document.getElementById('chart-labels').textContent),
             datasets: [{
                 label: 'Revenue (₵)',
-                data: {{ last_7_days_revenue|safe }},
+                data: JSON.parse(document.getElementById('chart-revenue').textContent),
                 backgroundColor: 'rgba(99, 102, 241, 0.8)',
                 borderRadius: 8,
             }]

@@ -19,3 +19,12 @@ build/
 htmlcov/
 .pytest_cache/
 .vercel
+
+# Credentials - never commit these
+.env
+*-adminsdk*.json
+firebase-adminsdk.json
+service-account*.json
+serviceAccountKey*.json
+*.pem
+*.key

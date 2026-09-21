@@ -433,11 +433,19 @@ footer p {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
     cursor: pointer;
+    text-decoration: none;
+    color: inherit;
 }
 
 .price-box:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.price-box:focus-visible {
+    outline: 3px solid #0b57d0;
+    outline-offset: 3px;
+    transform: translateY(-5px);
 }
 
 .box-data {

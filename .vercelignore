@@ -16,3 +16,8 @@ build/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Not needed at runtime
+*.md
+*/tests.py
+.git/

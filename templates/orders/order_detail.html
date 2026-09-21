@@ -39,11 +39,11 @@
                 <h3>Customer Information</h3>
                 <div class="info-row">
                     <span class="label">Name:</span>
-                    <span class="value">{{ order.customer_name|default:order.buyer.username|default:"Guest" }}</span>
+                    <span class="value">{% firstof order.customer_name order.buyer.username "Guest" %}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Email:</span>
-                    <span class="value">{{ order.customer_email|default:order.buyer.email|default:"N/A" }}</span>
+                    <span class="value">{% firstof order.customer_email order.buyer.email "N/A" %}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Phone:</span>

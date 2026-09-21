@@ -1,8 +1,0 @@
-# Firebase Integration for K-DATAHUB
-# Add these to your requirements.txt if you want server-side Firebase token verification
-
-# Firebase Admin SDK (Optional, for backend token verification)
-firebase-admin==6.2.0
-
-# Note: The frontend Firebase SDK is loaded from CDN in base.html
-# No npm package needed for frontend Firebase authentication
