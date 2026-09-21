@@ -76,6 +76,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -149,10 +150,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-_static_backend = (
-    'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
-    else 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-)
+# Static and media backends are configured in the STORAGES block below.
+WHITENOISE_AUTOREFRESH = DEBUG
 
 
 # Media files (Local)
@@ -184,7 +183,6 @@ if USE_FIREBASE_STORAGE:
             warnings.warn(f"⚠️ Failed to parse GS_CREDENTIALS JSON: {e}")
             GS_CREDENTIALS = None
             
-    _media_backend = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_QUERYSTRING_AUTH = False  # Set to False for public URLs
 
     # Media files public URL base
@@ -192,13 +190,22 @@ if USE_FIREBASE_STORAGE:
 else:
     # Local Media Storage (Development/Testing)
     MEDIA_URL = '/media/'
-    _media_backend = 'django.core.files.storage.FileSystemStorage'
 
-# Django 5.1 removed STATICFILES_STORAGE / DEFAULT_FILE_STORAGE; on 6.0 they are
-# silently ignored, so both backends have to be declared here to take effect.
+# STATICFILES_STORAGE and DEFAULT_FILE_STORAGE were removed in Django 5.1;
+# STORAGES is the only form that takes effect.
 STORAGES = {
-    'default': {'BACKEND': _media_backend},
-    'staticfiles': {'BACKEND': _static_backend},
+    'default': {
+        'BACKEND': (
+            'storages.backends.gcloud.GoogleCloudStorage' if USE_FIREBASE_STORAGE
+            else 'django.core.files.storage.FileSystemStorage'
+        ),
+    },
+    'staticfiles': {
+        'BACKEND': (
+            'django.contrib.staticfiles.storage.StaticFilesStorage' if DEBUG
+            else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+        ),
+    },
 }
 
 # Base Domain for Callbacks
